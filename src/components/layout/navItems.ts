@@ -1,5 +1,4 @@
 import {
-  Activity,
   BadgeCheck,
   BarChart3,
   Bot,
@@ -9,7 +8,6 @@ import {
   Gamepad2,
   Image,
   Trash2,
-  Trophy,
   LayoutDashboard,
   Library,
   MessageSquareWarning,
@@ -29,7 +27,7 @@ export const navGroups = [
   {
     label: 'Nội dung',
     items: [
-      { href: '/content/periods', label: 'Thời kỳ lịch sử', icon: Library },
+      { href: '/content/periods', label: 'Quản lý nội dung', icon: Library },
       { href: '/content/persons', label: 'Nhân vật lịch sử', icon: Users },
       { href: '/media', label: 'Media Library', icon: Image },
       { href: '/content/quality', label: 'Chất lượng nội dung', icon: BadgeCheck },
@@ -39,25 +37,24 @@ export const navGroups = [
   {
     label: 'Trò chơi',
     items: [
-      { href: '/games/quizzes', label: 'Quiz', icon: Gamepad2 },
-      { href: '/games/timeline-puzzle', label: 'Ghép niên đại', icon: Activity },
+      {
+        href: '/games',
+        label: 'Quản lý trò chơi',
+        icon: Gamepad2,
+        activePrefixes: ['/games', '/gamification'],
+      },
     ],
   },
   {
     label: 'Cộng đồng',
     items: [
-      { href: '/forum/posts', label: 'Forum posts', icon: MessageSquareWarning },
-      { href: '/forum/reports', label: 'Reports', icon: MessageSquareWarning },
+      { href: '/forum/reports', label: 'Báo cáo vi phạm', icon: MessageSquareWarning },
     ],
   },
   {
-    label: 'Người dùng & Game hóa',
+    label: 'Người dùng',
     items: [
       { href: '/users', label: 'Người dùng', icon: ShieldCheck },
-      { href: '/gamification/badges', label: 'Badges', icon: BadgeCheck },
-      { href: '/gamification/ranks', label: 'Ranks', icon: Activity },
-      { href: '/gamification/xp-rules', label: 'XP Rules', icon: ClipboardList },
-      { href: '/gamification/leaderboard', label: 'Leaderboard', icon: Trophy },
     ],
   },
   {

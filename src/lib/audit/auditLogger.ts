@@ -25,7 +25,11 @@ export type AuditAction =
   | 'user_ban'
   | 'user_unban'
   | 'session_revoke'
-  | 'streak_reset';
+  | 'streak_reset'
+  | 'moderation_review'
+  | 'moderation_resolve'
+  | 'moderation_dismiss'
+  | 'moderation_hide_content';
 
 export interface AuditLogInput {
   actor: AdminActor;

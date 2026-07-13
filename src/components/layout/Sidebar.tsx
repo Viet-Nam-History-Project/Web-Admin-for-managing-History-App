@@ -45,7 +45,10 @@ export function Sidebar() {
             </p>
             <div className="grid gap-1">
               {group.items.map((item) => {
-                const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+                const activePrefixes = 'activePrefixes' in item ? item.activePrefixes : [];
+                const active = pathname === item.href
+                  || pathname.startsWith(`${item.href}/`)
+                  || activePrefixes.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
                 const Icon = item.icon;
                 return (
                   <Link

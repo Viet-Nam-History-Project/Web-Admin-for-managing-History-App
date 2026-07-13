@@ -23,7 +23,7 @@ export default function LoginPage() {
       const token = await credential.user.getIdToken();
       localStorage.setItem('admin_id_token', token);
       const next = new URLSearchParams(window.location.search).get('next');
-      window.location.href = next?.startsWith('/') ? next : '/dashboard';
+      window.location.href = next?.startsWith('/') && next !== '/' ? next : '/dashboard';
     } catch {
       setError('Đăng nhập thất bại. Kiểm tra email, mật khẩu hoặc quyền admin.');
     } finally {
