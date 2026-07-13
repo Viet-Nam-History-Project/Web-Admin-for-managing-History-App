@@ -1,0 +1,40 @@
+{
+  "name": "vietnam-history-admin-web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "seed:admin": "tsx src/scripts/seedAdminUser.ts",
+    "graph:sync": "tsx src/scripts/syncFirestoreToGraph.ts",
+    "firestore:export-schema": "tsx src/scripts/exportFirestoreSchema.ts"
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "firebase": "^12.13.0",
+    "firebase-admin": "^13.4.0",
+    "lucide-react": "^0.475.0",
+    "neo4j-driver": "^5.28.1",
+    "next": "^15.1.6",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "recharts": "^2.15.1",
+    "tailwind-merge": "^2.6.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.7",
+    "@types/react": "^19.0.7",
+    "@types/react-dom": "^19.0.3",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.2.10",
+    "postcss": "^8.5.1",
+    "tailwindcss": "^3.4.17",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  }
+}
