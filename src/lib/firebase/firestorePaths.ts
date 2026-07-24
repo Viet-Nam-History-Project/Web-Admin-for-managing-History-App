@@ -14,6 +14,10 @@ export const paths = {
   persons: (periodSlug: string) => `periods_person/${periodSlug}/persons`,
   person: (periodSlug: string, personSlug: string) =>
     `periods_person/${periodSlug}/persons/${personSlug}`,
+  personEvents: (periodSlug: string, personSlug: string) =>
+    `periods_person/${periodSlug}/persons/${personSlug}/events`,
+  personEvent: (periodSlug: string, personSlug: string, eventSlug: string) =>
+    `periods_person/${periodSlug}/persons/${personSlug}/events/${eventSlug}`,
   quizzes: (gameId: string) => `games/${gameId}/quizzes`,
   questions: (gameId: string, quizId: string) => `games/${gameId}/quizzes/${quizId}/questions`,
   timelineEras: 'games/timelinepuzzle/eras',

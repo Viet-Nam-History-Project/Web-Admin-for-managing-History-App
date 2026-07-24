@@ -118,6 +118,74 @@ export const eventSchema = eventBaseSchema.superRefine((value, ctx) => {
 
 export const eventUpdateSchema = eventBaseSchema.partial({ slug: true }).superRefine(validateDateRange);
 
+export const personPeriodBaseSchema = commonContentSchema.extend({
+  description: z.string().trim().optional(),
+});
+
+export const personPeriodSchema = personPeriodBaseSchema.superRefine((value, ctx) => {
+  validateDateRange(value, ctx);
+  if (value.status === 'published' && !value.coverMediaRef) {
+    ctx.addIssue({ code: 'custom', path: ['coverMediaRef'], message: 'Nhóm nhân vật published cần có ảnh bìa' });
+  }
+});
+
+export const personPeriodUpdateSchema = personPeriodBaseSchema.partial({ slug: true }).superRefine(validateDateRange);
+
+export const personBaseSchema = z.object({
+  slug: slugSchema,
+  name: z.string().trim().min(1, 'Tên nhân vật bắt buộc'),
+  title: z.string().trim().min(1, 'Danh hiệu hoặc chức vụ bắt buộc'),
+  overview: z.string().trim().optional(),
+  hometown: z.string().trim().optional(),
+  birthDate: z.string().trim().optional(),
+  deathDate: z.string().trim().optional(),
+  coverMediaRef: z.string().trim().optional(),
+  horizontalImage: z.string().trim().optional(),
+  achievements: stringList,
+  lifetime: stringList,
+  video: mediaSchema.default({}),
+  status: statusSchema,
+  sortOrder: z.coerce.number().int().default(0),
+});
+
+export const personSchema = personBaseSchema.superRefine((value, ctx) => {
+  if (value.status === 'published') {
+    if (!value.coverMediaRef) ctx.addIssue({ code: 'custom', path: ['coverMediaRef'], message: 'Nhân vật published cần có ảnh thumbnail' });
+    if (!value.overview) ctx.addIssue({ code: 'custom', path: ['overview'], message: 'Nhân vật published cần có overview' });
+  }
+});
+
+export const personUpdateSchema = personBaseSchema.partial({ slug: true });
+
+const eventRefSchema = z.string().trim()
+  .regex(/^periods\/[^/]+\/stages\/[^/]+\/events\/[^/]+$/, 'eventRef phải trỏ tới sự kiện lịch sử hợp lệ');
+
+export const personEventBaseSchema = z.object({
+  slug: slugSchema,
+  title: z.string().trim().min(1, 'Tiêu đề sự kiện bắt buộc'),
+  overview: z.string().trim().optional(),
+  role: z.string().trim().optional(),
+  description: z.string().trim().optional(),
+  coverMediaRef: z.string().trim().optional(),
+  eventRef: eventRefSchema,
+  status: statusSchema,
+  sortOrder: z.coerce.number().int().default(0),
+});
+
+export const personEventSchema = personEventBaseSchema.superRefine((value, ctx) => {
+  if (value.status === 'published') {
+    if (!value.coverMediaRef) ctx.addIssue({ code: 'custom', path: ['coverMediaRef'], message: 'Sự kiện nhân vật published cần có ảnh' });
+    if (!value.overview && !value.role && !value.description) {
+      ctx.addIssue({ code: 'custom', path: ['overview'], message: 'Sự kiện nhân vật published cần có overview, vai trò hoặc mô tả' });
+    }
+  }
+});
+
+export const personEventUpdateSchema = personEventBaseSchema.partial({ slug: true });
+
 export type PeriodPayload = z.infer<typeof periodSchema>;
 export type StagePayload = z.infer<typeof stageSchema>;
 export type EventPayload = z.infer<typeof eventSchema>;
+export type PersonPeriodPayload = z.infer<typeof personPeriodSchema>;
+export type PersonPayload = z.infer<typeof personSchema>;
+export type PersonEventPayload = z.infer<typeof personEventSchema>;
