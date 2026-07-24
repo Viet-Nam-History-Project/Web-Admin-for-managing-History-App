@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { onIdTokenChanged, User } from 'firebase/auth';
+import { onIdTokenChanged } from 'firebase/auth';
 import { usePathname, useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { AdminShell } from '@/components/layout/AdminShell';
@@ -11,29 +11,44 @@ export function AppFrame({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const [ready, setReady] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
+  const [authenticated, setAuthenticated] = useState(false);
 
   useEffect(() => onIdTokenChanged(firebaseAuth, async (nextUser) => {
-    setUser(nextUser);
-    if (nextUser) {
-      const token = await nextUser.getIdToken();
-      localStorage.setItem('admin_id_token', token);
-    } else {
-      localStorage.removeItem('admin_id_token');
+    try {
+      if (nextUser) {
+        const token = await nextUser.getIdToken();
+        localStorage.setItem('admin_id_token', token);
+        const response = await fetch('/api/auth/session', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setAuthenticated(response.ok);
+        if (!response.ok) {
+          await fetch('/api/auth/session', { method: 'DELETE' });
+        }
+      } else {
+        localStorage.removeItem('admin_id_token');
+        const response = await fetch('/api/auth/session', {
+          method: 'GET',
+          cache: 'no-store',
+        });
+        setAuthenticated(response.ok);
+      }
+    } finally {
+      setReady(true);
     }
-    setReady(true);
   }), []);
 
   useEffect(() => {
-    if (ready && !user && pathname !== '/login') {
+    if (ready && !authenticated && pathname !== '/login') {
       const next = encodeURIComponent(pathname === '/' ? '/dashboard' : pathname);
       router.replace(`/login?next=${next}`);
     }
-  }, [pathname, ready, router, user]);
+  }, [authenticated, pathname, ready, router]);
 
   if (pathname === '/login') return <>{children}</>;
 
-  if (!ready || !user) {
+  if (!ready || !authenticated) {
     return (
       <main className="grid min-h-screen place-items-center bg-ivory">
         <div className="flex items-center gap-3 text-sm font-semibold text-stone-600">

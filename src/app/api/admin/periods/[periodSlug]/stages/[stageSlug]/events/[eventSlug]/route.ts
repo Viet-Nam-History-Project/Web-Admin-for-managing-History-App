@@ -22,7 +22,7 @@ export async function PATCH(request: NextRequest, { params }: Context) {
     const payload = await request.json();
     if (action === 'publish') await eventAdminService.publish(actor, periodSlug, stageSlug, eventSlug);
     else if (action === 'unpublish') await eventAdminService.unpublish(actor, periodSlug, stageSlug, eventSlug);
-    else if (action === 'sync') await eventAdminService.sync(actor, periodSlug, stageSlug, eventSlug);
+    else if (action) throw new Error('Thao tác graph sync cũ đã được gỡ bỏ. Hãy dùng Index PDF.');
     else await eventAdminService.update(actor, periodSlug, stageSlug, eventSlug, payload);
     return NextResponse.json({ ok: true });
   } catch (error) {

@@ -5,7 +5,7 @@ export default function EventsPage() {
     <ModulePage
       eyebrow="Content"
       title="Quản lý sự kiện"
-      description="CRUD event, section nội dung, timeline diễn biến, video YouTube, related persons/events và AI gợi ý quiz."
+      description="Quản lý sự kiện, diễn biến, tư liệu và các nhân vật liên quan."
       phase="Phase 1"
     />
   );

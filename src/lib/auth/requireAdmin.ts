@@ -1,7 +1,7 @@
-import { headers } from 'next/headers';
-import { getAdminAuth, getAdminDb } from '@/lib/firebase/admin';
-import { paths } from '@/lib/firebase/firestorePaths';
+import { cookies, headers } from 'next/headers';
+import { getAdminAuth } from '@/lib/firebase/admin';
 import { AdminRole, hasAnyRole } from '@/lib/auth/roles';
+import { ADMIN_SESSION_COOKIE, verifyAdminSessionToken } from '@/lib/auth/adminSessionToken';
 
 export interface AdminActor {
   uid: string;
@@ -27,31 +27,34 @@ async function getBearerToken() {
 
 export async function requireAdmin(allowedRoles: AdminRole[] = []): Promise<AdminActor> {
   const token = await getBearerToken();
-  if (!token) {
-    throw new AdminAuthError('Thiếu Firebase ID token.');
+  let actor: AdminActor | null = null;
+  if (token) {
+    const decoded = await getAdminAuth().verifyIdToken(token, true);
+    const roles = Array.isArray(decoded.roles)
+      ? decoded.roles.filter((role): role is string => typeof role === 'string')
+      : [];
+    if (decoded.admin !== true || roles.length === 0) {
+      throw new AdminPermissionError('ID token không có Custom Claims quản trị.');
+    }
+    actor = {
+      uid: decoded.uid,
+      email: decoded.email ?? '',
+      displayName: typeof decoded.name === 'string' ? decoded.name : undefined,
+      roles,
+    };
+  } else {
+    const cookieToken = (await cookies()).get(ADMIN_SESSION_COOKIE)?.value ?? '';
+    const secret = process.env.ADMIN_SESSION_SECRET ?? '';
+    const session = secret && cookieToken
+      ? await verifyAdminSessionToken(cookieToken, secret)
+      : null;
+    if (session) actor = session;
   }
 
-  const decoded = await getAdminAuth().verifyIdToken(token);
-  const adminDoc = await getAdminDb().doc(`${paths.adminUsers}/${decoded.uid}`).get();
-
-  if (!adminDoc.exists) {
-    throw new AdminPermissionError('Tài khoản không thuộc admin_users.');
-  }
-
-  const data = adminDoc.data() ?? {};
-  if (data.status !== 'active') {
-    throw new AdminPermissionError('Tài khoản admin chưa active hoặc đã bị khóa.');
-  }
-
-  const roles = Array.isArray(data.roles) ? data.roles : [];
+  if (!actor) throw new AdminAuthError('Thiếu hoặc hết hạn phiên quản trị.');
+  const roles = actor.roles;
   if (!hasAnyRole(roles, allowedRoles)) {
     throw new AdminPermissionError('Không đủ quyền thực hiện thao tác này.');
   }
-
-  return {
-    uid: decoded.uid,
-    email: decoded.email ?? data.email ?? '',
-    displayName: data.displayName,
-    roles,
-  };
+  return actor;
 }

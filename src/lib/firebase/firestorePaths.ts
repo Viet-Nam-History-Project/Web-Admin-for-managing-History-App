@@ -25,6 +25,9 @@ export const paths = {
   auditLogs: 'admin_audit_logs',
   trash: 'admin_trash',
   mediaAssets: 'media_assets',
+  aiKnowledgeSources: 'ai_knowledge_sources',
+  aiEvaluationRuns: 'ai_evaluation_runs',
+  aiPromptVersions: 'ai_prompt_versions',
 };
 
 export function canonicalId(type: string, firestorePath: string) {

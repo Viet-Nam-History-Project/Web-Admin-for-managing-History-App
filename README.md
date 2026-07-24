@@ -8,7 +8,7 @@ Web admin riêng cho hệ thống app học **Lịch Sử Việt Nam**. Project 
 - Tailwind CSS
 - Firebase Client SDK cho đăng nhập admin
 - Firebase Admin SDK cho server-side repository/API
-- Neo4j driver cho graph sync
+- FastAPI History-Chatbot cho OpenAI, PDF và Neo4j
 - Zod cho validation schema
 
 ## Cài đặt
@@ -69,19 +69,14 @@ FIREBASE_KEY='{"type":"service_account",...}'
 `FIREBASE_KEY` / `FIREBASE_SERVICE_ACCOUNT_KEY` có thể là JSON nguyên bản hoặc base64 của JSON.
 Firebase Web API key (`NEXT_PUBLIC_FIREBASE_API_KEY`) chỉ dùng cho client login, không đủ quyền cho Firebase Admin SDK.
 
-Graph database:
+AI/PDF backend:
 
 ```env
-NEO4J_URI=
-NEO4J_USERNAME=
-NEO4J_PASSWORD=
-```
-
-AI:
-
-```env
-AI_PROVIDER_API_KEY=
-AI_PROVIDER_MODEL=
+AI_BACKEND_URL=http://127.0.0.1:8000
+AI_ADMIN_API_KEY=replace-with-the-same-secret-as-history-chatbot
+AI_MAX_PDF_SIZE_MB=200
+AI_PDF_STORAGE_DRIVER=local
+AI_PDF_LOCAL_DIR=.data
 ADMIN_APP_URL=http://localhost:3000
 ```
 
@@ -138,23 +133,12 @@ Schema:
 }
 ```
 
-## Firestore là source of truth
+## Phân chia trách nhiệm dữ liệu
 
-Firestore vẫn là nguồn dữ liệu chính của app mobile. Graph database chỉ dùng cho quan hệ tri thức, gợi ý học tập, phân tích và AI GraphRAG.
-
-Graph node cần lưu:
-
-```ts
-{
-  canonicalId,
-  firestorePath,
-  slug,
-  title,
-  type,
-  updatedAt,
-  source: "firestore"
-}
-```
+Firestore là nguồn dữ liệu chính cho nội dung app và metadata/trạng thái PDF.
+Web-admin không kết nối trực tiếp Neo4j. Nút **Index** gửi PDF sang FastAPI;
+backend duy nhất chịu trách nhiệm OCR, chunk, OpenAI embedding, trích
+entity/relationship, ghi Neo4j và thống kê token.
 
 ## Scripts
 
@@ -164,7 +148,6 @@ npm run build
 npm run lint
 npm run typecheck
 npm run seed:admin
-npm run graph:sync
 npm run firestore:export-schema
 ```
 
@@ -177,7 +160,8 @@ npm run firestore:export-schema
 - Xóa vĩnh viễn có xác nhận và recursive delete cho `super_admin`.
 - Audit logs cho toàn bộ mutation nội dung cốt lõi.
 - Content quality scanner.
-- Graph sync có trạng thái success/error trên document.
+- Kho tri thức PDF có Index nền, kiểm tra chunk/entity/relationship và token.
+- Quản lý Graph chỉ hiển thị pipeline PDF mới; có công cụ xóa dữ liệu legacy.
 - Quản lý người dùng: tìm/lọc, xem hồ sơ, lịch sử chơi, khóa tài khoản, chỉnh XP, reset streak và thu hồi phiên.
 - Persons, quiz, timeline puzzle, forum, media và AI hiện có route khung để tiếp tục triển khai.
 
@@ -188,6 +172,6 @@ Xem báo cáo đầy đủ tại [BAO_CAO_WEB_ADMIN.md](./BAO_CAO_WEB_ADMIN.md).
 - CRUD chi tiết cho persons/quiz/forum/media.
 - Bổ sung chart thật bằng Recharts.
 - Bổ sung table/filter/search/pagination từng module.
-- Bổ sung graph visualization.
-- Bổ sung AI provider adapter và rate limit.
+- Bổ sung graph visualization cho dữ liệu PDF khi cần.
+- Bổ sung rate limit cho các endpoint AI.
 - Cập nhật Firestore rules/custom claims theo mô hình admin.

@@ -60,14 +60,10 @@ export const navGroups = [
   {
     label: 'Tri thức & AI',
     items: [
-      { href: '/graph/explorer', label: 'Graph Explorer', icon: DatabaseZap },
-      { href: '/graph/sync', label: 'Graph Sync', icon: DatabaseZap },
-      { href: '/graph/relationships', label: 'Relationships', icon: BrainCircuit },
-      { href: '/ai/overview', label: 'AI Overview', icon: Bot },
-      { href: '/ai/knowledge-base', label: 'Knowledge Base', icon: BrainCircuit },
-      { href: '/ai/prompts', label: 'Prompts', icon: Bot },
-      { href: '/ai/evaluations', label: 'Evaluations', icon: BadgeCheck },
-      { href: '/ai/suggestions', label: 'Suggestions', icon: BrainCircuit },
+      { href: '/ai/overview', label: 'Vận hành AI', icon: Bot, activePrefixes: ['/ai/overview', '/ai/suggestions'] },
+      { href: '/ai/knowledge-base', label: 'Kho tri thức PDF', icon: BrainCircuit },
+      { href: '/graph', label: 'Quản lý Graph', icon: DatabaseZap, activePrefixes: ['/graph'] },
+      { href: '/ai/prompts', label: 'Prompt & Kiểm thử', icon: BadgeCheck, activePrefixes: ['/ai/prompts', '/ai/evaluations'] },
     ],
   },
   {

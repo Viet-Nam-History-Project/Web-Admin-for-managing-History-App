@@ -274,6 +274,18 @@ async function safeGroupCount(collectionId: string) {
 
 export async function getDashboardStats() {
   const db = getAdminDb();
+  const cached = await db.doc('admin_stats/dashboard').get().catch(() => null);
+  if (cached?.exists) {
+    const value = cached.data() ?? {};
+    return {
+      users: Number(value.users ?? 0), usersNew7d: Number(value.usersNew7d ?? 0), activeUsers7d: Number(value.activeUsers7d ?? 0),
+      periods: Number(value.periods ?? 0), stages: Number(value.stages ?? 0), events: Number(value.events ?? 0), persons: Number(value.persons ?? 0),
+      quizzes: Number(value.quizzes ?? 0), questions: Number(value.questions ?? 0), quizSessions: Number(value.quizSessions ?? 0),
+      forumPosts: Number(value.forumPosts ?? 0), forumComments: Number(value.forumComments ?? 0), draftContent: Number(value.draftContent ?? 0),
+      missingImage: Number(value.missingImage ?? 0), missingVideo: Number(value.missingVideo ?? 0), deletedContent: Number(value.deletedContent ?? 0),
+      aiUnansweredQuestions: Number(value.aiUnansweredQuestions ?? 0),
+    };
+  }
   const [users, periods, forumPosts, persons, quizzes, questions, quizSessions, trash] = await Promise.all([
     safeCount(paths.users),
     safeCount(paths.periods),
@@ -291,21 +303,18 @@ export async function getDashboardStats() {
   let missingImage = 0;
   let draftContent = 0;
   let missingVideo = 0;
-  let unsyncedGraph = 0;
 
   if (periodSnap) {
     for (const periodDoc of periodSnap.docs) {
       const period = periodDoc.data();
       if (!period.coverMediaRef) missingImage += 1;
       if (period.status === 'draft') draftContent += 1;
-      if (period.graphSyncStatus !== 'synced') unsyncedGraph += 1;
       const stageSnap = await periodDoc.ref.collection('stages').get();
       stages += stageSnap.size;
       for (const stageDoc of stageSnap.docs) {
         const stage = stageDoc.data();
         if (!stage.coverMediaRef) missingImage += 1;
         if (stage.status === 'draft') draftContent += 1;
-        if (stage.graphSyncStatus !== 'synced') unsyncedGraph += 1;
         const eventSnap = await stageDoc.ref.collection('events').get();
         events += eventSnap.size;
         eventSnap.docs.forEach((eventDoc) => {
@@ -313,7 +322,6 @@ export async function getDashboardStats() {
           if (!event.coverMediaRef) missingImage += 1;
           if (event.status === 'draft') draftContent += 1;
           if (!(event.videos?.length || event.youtubeId)) missingVideo += 1;
-          if (event.graphSyncStatus !== 'synced') unsyncedGraph += 1;
         });
       }
     }
@@ -335,7 +343,6 @@ export async function getDashboardStats() {
     draftContent,
     missingImage,
     missingVideo,
-    unsyncedGraph,
     deletedContent: trash,
     aiUnansweredQuestions: 0,
   };

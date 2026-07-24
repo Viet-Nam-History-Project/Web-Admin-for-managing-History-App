@@ -30,7 +30,7 @@ export async function PATCH(
     const action = new URL(request.url).searchParams.get('action');
     if (action === 'publish') await periodAdminService.publish(actor, periodSlug);
     else if (action === 'unpublish') await periodAdminService.unpublish(actor, periodSlug);
-    else if (action === 'sync') await periodAdminService.sync(actor, periodSlug);
+    else if (action) throw new Error('Thao tác graph sync cũ đã được gỡ bỏ. Hãy dùng Index PDF.');
     else await periodAdminService.update(actor, periodSlug, payload);
     return NextResponse.json({ ok: true });
   } catch (error) {

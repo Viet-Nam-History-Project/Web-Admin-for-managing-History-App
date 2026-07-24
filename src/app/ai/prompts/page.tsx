@@ -1,12 +1,10 @@
-import { ModulePage } from '@/components/layout/ModulePage';
+import { AdminShell } from '@/components/layout/AdminShell';
+import { PageHeader } from '@/components/layout/PageHeader';
+import { PromptWorkspace } from '@/components/ai/PromptWorkspace';
 
 export default function PromptsPage() {
-  return (
-    <ModulePage
-      eyebrow="AI Center"
-      title="Prompt Manager"
-      description="Quản lý system prompt, prompt tạo quiz, prompt tóm tắt, versioning và active version."
-      phase="Phase 5"
-    />
-  );
+  return <AdminShell>
+    <PageHeader eyebrow="Tri thức & AI" title="Prompt & Kiểm thử" description="Quản lý đầy đủ năm lớp chỉ dẫn đang được RAG sử dụng, lưu phiên bản, kích hoạt và kiểm tra trước khi áp dụng cho app." />
+    <PromptWorkspace />
+  </AdminShell>;
 }

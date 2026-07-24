@@ -3,9 +3,9 @@ import { ModulePage } from '@/components/layout/ModulePage';
 export default function QuizzesPage() {
   return (
     <ModulePage
-      eyebrow="Games"
+      eyebrow="Trò chơi"
       title="Quản lý quiz"
-      description="Tạo quiz, câu hỏi, import CSV/JSON, AI generate câu hỏi, kiểm tra trùng và thống kê câu hỏi sai nhiều."
+      description="Quản lý bộ câu hỏi, kiểm tra nội dung trùng lặp và theo dõi những câu hỏi người học thường trả lời sai."
     />
   );
 }

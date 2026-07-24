@@ -4,15 +4,13 @@ import { AdminActor } from '@/lib/auth/requireAdmin';
 import { writeAuditLog } from '@/lib/audit/auditLogger';
 import { periodSchema, periodUpdateSchema, PeriodPayload } from '@/lib/validation/contentSchemas';
 import { createCollectionRepository } from '@/services/baseRepository';
-import { graphSyncService } from '@/services/graphSyncService';
-import { prepareFirestoreContent, syncWithStatus } from '@/services/contentMutationHelpers';
+import { prepareFirestoreContent } from '@/services/contentMutationHelpers';
 import { trashAdminService } from '@/services/trashAdminService';
 
 export interface AdminPeriod extends PeriodPayload {
   id: string;
   stageCount?: number;
   eventCount?: number;
-  graphSyncStatus?: string;
   updatedAt?: unknown;
   updated_at?: unknown;
 }
@@ -54,7 +52,6 @@ export const periodAdminService = {
     if ((await ref.get()).exists) throw new Error('Slug thời kỳ đã tồn tại.');
     await periodRepository.create(data.slug, prepareFirestoreContent(data));
     await writeAuditLog({ actor, action: 'create', entityType: 'period', entityPath: ref.path, entityTitle: data.title, after: data });
-    await this.sync(actor, data.slug);
     return data.slug;
   },
 
@@ -62,7 +59,7 @@ export const periodAdminService = {
     const data = periodUpdateSchema.parse(payload);
     const before = await periodRepository.get(slug);
     if (!before) throw new Error('Không tìm thấy thời kỳ.');
-    await periodRepository.update(slug, { ...prepareFirestoreContent(data), graphSyncStatus: 'pending' });
+    await periodRepository.update(slug, prepareFirestoreContent(data));
     await writeAuditLog({ actor, action: 'update', entityType: 'period', entityPath: paths.period(slug), entityTitle: before.title, before, after: data });
   },
 
@@ -93,13 +90,5 @@ export const periodAdminService = {
     if (!before) throw new Error('Không tìm thấy thời kỳ.');
     await periodRepository.unpublish(slug);
     await writeAuditLog({ actor, action: 'unpublish', entityType: 'period', entityPath: paths.period(slug), entityTitle: before.title, before, after: { status: 'draft' } });
-  },
-
-  async sync(actor: AdminActor, slug: string) {
-    const entity = await periodRepository.get(slug);
-    if (!entity) throw new Error('Không tìm thấy thời kỳ.');
-    const result = await syncWithStatus(paths.period(slug), () => graphSyncService.syncPeriod(slug, entity));
-    await writeAuditLog({ actor, action: 'sync_graph', entityType: 'period', entityPath: paths.period(slug), entityTitle: entity.title, after: result });
-    return result;
   },
 };

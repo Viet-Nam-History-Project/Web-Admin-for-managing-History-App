@@ -4,14 +4,12 @@ import { paths } from '@/lib/firebase/firestorePaths';
 import { getAdminDb } from '@/lib/firebase/admin';
 import { stageSchema, stageUpdateSchema, StagePayload } from '@/lib/validation/contentSchemas';
 import { createCollectionRepository } from '@/services/baseRepository';
-import { graphSyncService } from '@/services/graphSyncService';
-import { prepareFirestoreContent, syncWithStatus } from '@/services/contentMutationHelpers';
+import { prepareFirestoreContent } from '@/services/contentMutationHelpers';
 import { trashAdminService } from '@/services/trashAdminService';
 
 export interface AdminStage extends StagePayload {
   id: string;
   eventCount?: number;
-  graphSyncStatus?: string;
   updatedAt?: unknown;
   updated_at?: unknown;
 }
@@ -36,7 +34,6 @@ export const stageAdminService = {
     if (await stageRepository(periodSlug).get(data.slug)) throw new Error('Slug giai đoạn đã tồn tại trong thời kỳ này.');
     await stageRepository(periodSlug).create(data.slug, prepareFirestoreContent(data));
     await writeAuditLog({ actor, action: 'create', entityType: 'stage', entityPath: paths.stage(periodSlug, data.slug), entityTitle: data.title, after: data });
-    await this.sync(actor, periodSlug, data.slug);
     return data.slug;
   },
 
@@ -44,7 +41,7 @@ export const stageAdminService = {
     const data = stageUpdateSchema.parse(payload);
     const before = await stageRepository(periodSlug).get(stageSlug);
     if (!before) throw new Error('Không tìm thấy giai đoạn.');
-    await stageRepository(periodSlug).update(stageSlug, { ...prepareFirestoreContent(data), graphSyncStatus: 'pending' });
+    await stageRepository(periodSlug).update(stageSlug, prepareFirestoreContent(data));
     await writeAuditLog({ actor, action: 'update', entityType: 'stage', entityPath: paths.stage(periodSlug, stageSlug), entityTitle: before.title, before, after: data });
   },
 
@@ -75,13 +72,5 @@ export const stageAdminService = {
     if (!before) throw new Error('Không tìm thấy giai đoạn.');
     await stageRepository(periodSlug).unpublish(stageSlug);
     await writeAuditLog({ actor, action: 'unpublish', entityType: 'stage', entityPath: paths.stage(periodSlug, stageSlug), entityTitle: before.title, before, after: { status: 'draft' } });
-  },
-
-  async sync(actor: AdminActor, periodSlug: string, stageSlug: string) {
-    const entity = await stageRepository(periodSlug).get(stageSlug);
-    if (!entity) throw new Error('Không tìm thấy giai đoạn.');
-    const result = await syncWithStatus(paths.stage(periodSlug, stageSlug), () => graphSyncService.syncStage(periodSlug, stageSlug, entity));
-    await writeAuditLog({ actor, action: 'sync_graph', entityType: 'stage', entityPath: paths.stage(periodSlug, stageSlug), entityTitle: entity.title, after: result });
-    return result;
   },
 };

@@ -3,7 +3,6 @@ import {
   Bot,
   FileWarning,
   Gamepad2,
-  GitBranch,
   Landmark,
   MessageSquare,
   ScrollText,
@@ -42,7 +41,6 @@ export default async function DashboardPage() {
     draftContent: 0,
     missingImage: 0,
     missingVideo: 0,
-    unsyncedGraph: 0,
     aiUnansweredQuestions: 0,
     questions: 0,
     deletedContent: 0,
@@ -54,7 +52,7 @@ export default async function DashboardPage() {
       <PageHeader
         eyebrow="Dashboard"
         title="Trung tâm điều hành"
-        description="Theo dõi dữ liệu học tập, nội dung, diễn đàn, graph sync và AI readiness cho app Lịch Sử Việt Nam."
+        description="Theo dõi dữ liệu học tập, nội dung, diễn đàn và mức sẵn sàng của AI cho app Lịch Sử Việt Nam."
       />
 
       {envError ? (
@@ -76,7 +74,6 @@ export default async function DashboardPage() {
         <StatCard title="Quiz" value={data.quizzes} icon={Gamepad2} hint={`${data.quizSessions} lượt chơi`} />
         <StatCard title="Câu hỏi" value={data.questions} icon={Gamepad2} />
         <StatCard title="Forum posts" value={data.forumPosts} icon={MessageSquare} hint={`${data.forumComments} comments`} />
-        <StatCard title="Chưa sync graph" value={data.unsyncedGraph} icon={GitBranch} />
         <StatCard title="Draft content" value={data.draftContent} icon={FileWarning} />
         <StatCard title="Trong thùng rác" value={data.deletedContent} icon={FileWarning} />
         <StatCard title="Thiếu ảnh" value={data.missingImage} icon={FileWarning} />
@@ -91,7 +88,7 @@ export default async function DashboardPage() {
         </Card>
         <Card>
           <CardTitle>Content completeness</CardTitle>
-          <div className="mt-4 grid grid-cols-2 gap-3 text-sm"><Health label="Thiếu ảnh" value={data.missingImage} warning /><Health label="Thiếu video" value={data.missingVideo} warning /><Health label="Bản nháp" value={data.draftContent} /><Health label="Chưa sync graph" value={data.unsyncedGraph} warning /></div>
+          <div className="mt-4 grid grid-cols-2 gap-3 text-sm"><Health label="Thiếu ảnh" value={data.missingImage} warning /><Health label="Thiếu video" value={data.missingVideo} warning /><Health label="Bản nháp" value={data.draftContent} /></div>
         </Card>
       </div>
     </AdminShell>

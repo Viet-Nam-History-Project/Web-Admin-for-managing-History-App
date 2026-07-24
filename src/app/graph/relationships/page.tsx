@@ -1,12 +1,3 @@
-import { ModulePage } from '@/components/layout/ModulePage';
+import { redirect } from 'next/navigation';
 
-export default function RelationshipsPage() {
-  return (
-    <ModulePage
-      eyebrow="Graph DB"
-      title="Relationship Manager"
-      description="Tạo/xóa quan hệ Person/Event/Location và gợi ý quan hệ còn thiếu."
-      phase="Phase 4"
-    />
-  );
-}
+export default function RelationshipsPage() { redirect('/graph'); }

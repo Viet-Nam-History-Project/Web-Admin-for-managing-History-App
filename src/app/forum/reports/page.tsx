@@ -1,6 +1,6 @@
 import { Fragment } from 'react';
 import Link from 'next/link';
-import { AlertTriangle, CheckCircle2, Clock3, Search, SearchCheck, XCircle } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, ChevronLeft, ChevronRight, Clock3, Search, SearchCheck, XCircle } from 'lucide-react';
 import { AdminShell } from '@/components/layout/AdminShell';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Badge } from '@/components/ui/Badge';
@@ -13,6 +13,7 @@ import { ExportReportsButton } from '@/components/forum/ExportReportsButton';
 import { ReportModerationActions } from '@/components/forum/ReportModerationActions';
 import { formatAdminDateTime } from '@/lib/utils/historicalDate';
 import { forumAdminService, ForumReportStatus } from '@/services/forumAdminService';
+import { requireAdmin } from '@/lib/auth/requireAdmin';
 
 export const dynamic = 'force-dynamic';
 
@@ -40,17 +41,44 @@ const statusTone: Record<ForumReportStatus, 'gold' | 'red' | 'green' | 'neutral'
   dismissed: 'neutral',
 };
 
+type Params = { status?: string; reason?: string; search?: string; cursor?: string; trail?: string };
+
+function decodeTrail(value?: string) {
+  try {
+    const parsed = JSON.parse(Buffer.from(value ?? '', 'base64url').toString('utf8'));
+    return Array.isArray(parsed) ? parsed.filter((item): item is string => typeof item === 'string').slice(-50) : [];
+  } catch { return []; }
+}
+
+function pageHref(filters: Params, cursor: string | null, trail: string[]) {
+  const params = new URLSearchParams();
+  if (filters.search) params.set('search', filters.search);
+  if (filters.status) params.set('status', filters.status);
+  if (filters.reason) params.set('reason', filters.reason);
+  if (cursor) params.set('cursor', cursor);
+  if (trail.length) params.set('trail', Buffer.from(JSON.stringify(trail)).toString('base64url'));
+  return `/forum/reports?${params.toString()}`;
+}
+
 export default async function ForumReportsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; reason?: string; search?: string }>;
+  searchParams: Promise<Params>;
 }) {
+  await requireAdmin(['super_admin', 'moderator', 'content_admin', 'viewer']);
   const filters = await searchParams;
   const appliedFilters = { ...filters, status: filters.status ?? 'pending' };
   const result = await forumAdminService.listReports(appliedFilters).catch(() => ({
     items: [],
+    pageSize: 25,
+    hasNextPage: false,
+    nextCursor: null,
     stats: { total: 0, pending: 0, reviewing: 0, resolved: 0, dismissed: 0 },
   }));
+  const trail = decodeTrail(filters.trail);
+  const previousCursor = trail.at(-1) || null;
+  const previousTrail = trail.slice(0, -1);
+  const nextTrail = [...trail, filters.cursor ?? ''];
 
   return (
     <AdminShell>
@@ -134,6 +162,12 @@ export default async function ForumReportsPage({
       ) : (
         <EmptyState title="Không có báo cáo phù hợp" description="Báo cáo mới từ ứng dụng sẽ xuất hiện tại đây." />
       )}
+      {filters.cursor || result.nextCursor ? <div className="mt-5 flex justify-end">
+        <div className="flex gap-2">
+          {filters.cursor ? <Link href={pageHref(appliedFilters, previousCursor, previousTrail)}><Button variant="outline"><ChevronLeft className="h-4 w-4" /> Trang trước</Button></Link> : null}
+          {result.nextCursor ? <Link href={pageHref(appliedFilters, result.nextCursor, nextTrail)}><Button variant="outline">Trang tiếp <ChevronRight className="h-4 w-4" /></Button></Link> : null}
+        </div>
+      </div> : null}
     </AdminShell>
   );
 }

@@ -1,6 +1,10 @@
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
+
 import { getApps, initializeApp, cert, App } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
+import { getStorage } from 'firebase-admin/storage';
 
 type ServiceAccountEnv = {
   project_id?: string;
@@ -17,6 +21,18 @@ function resolvePrivateKey() {
 }
 
 function parseServiceAccountEnv(): ServiceAccountEnv | null {
+  const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH;
+  if (serviceAccountPath) {
+    try {
+      return JSON.parse(
+        readFileSync(path.resolve(serviceAccountPath), 'utf8'),
+      ) as ServiceAccountEnv;
+    } catch {
+      throw new Error(
+        'FIREBASE_SERVICE_ACCOUNT_PATH không trỏ đến service account JSON hợp lệ.',
+      );
+    }
+  }
   const raw = process.env.FIREBASE_SERVICE_ACCOUNT_KEY ?? process.env.FIREBASE_KEY;
   if (!raw) return null;
 
@@ -51,6 +67,11 @@ function createAdminApp(): App {
   const privateKey =
     (serviceAccount?.private_key ?? serviceAccount?.privateKey)?.replace(/\\n/g, '\n') ??
     resolvePrivateKey();
+  const storageBucket =
+    process.env.FIREBASE_STORAGE_BUCKET ??
+    process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ??
+    process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET ??
+    (projectId ? `${projectId}.firebasestorage.app` : undefined);
 
   if (!projectId || !clientEmail || !privateKey) {
     const missing = [
@@ -65,6 +86,7 @@ function createAdminApp(): App {
 
   return initializeApp({
     credential: cert({ projectId, clientEmail, privateKey }),
+    storageBucket,
   });
 }
 
@@ -78,4 +100,8 @@ export function getAdminDb() {
 
 export function getAdminAuth() {
   return getAuth(getAdminApp());
+}
+
+export function getAdminStorage() {
+  return getStorage(getAdminApp());
 }

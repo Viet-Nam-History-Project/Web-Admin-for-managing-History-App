@@ -1,0 +1,53 @@
+{
+  "indexes": [
+    { "collectionGroup": "users", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "totalXP", "order": "DESCENDING" }, { "fieldPath": "__name__", "order": "DESCENDING" }
+    ] },
+    { "collectionGroup": "users", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "accountStatus", "order": "ASCENDING" }, { "fieldPath": "totalXP", "order": "DESCENDING" }, { "fieldPath": "__name__", "order": "DESCENDING" }
+    ] },
+    { "collectionGroup": "users", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "currentRank", "order": "ASCENDING" }, { "fieldPath": "totalXP", "order": "DESCENDING" }, { "fieldPath": "__name__", "order": "DESCENDING" }
+    ] },
+    { "collectionGroup": "users", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "accountStatus", "order": "ASCENDING" }, { "fieldPath": "currentRank", "order": "ASCENDING" }, { "fieldPath": "totalXP", "order": "DESCENDING" }, { "fieldPath": "__name__", "order": "DESCENDING" }
+    ] },
+    { "collectionGroup": "users", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "searchTokens", "arrayConfig": "CONTAINS" }, { "fieldPath": "totalXP", "order": "DESCENDING" }, { "fieldPath": "__name__", "order": "DESCENDING" }
+    ] },
+    { "collectionGroup": "users", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "searchTokens", "arrayConfig": "CONTAINS" }, { "fieldPath": "accountStatus", "order": "ASCENDING" }, { "fieldPath": "totalXP", "order": "DESCENDING" }, { "fieldPath": "__name__", "order": "DESCENDING" }
+    ] },
+    { "collectionGroup": "users", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "searchTokens", "arrayConfig": "CONTAINS" }, { "fieldPath": "currentRank", "order": "ASCENDING" }, { "fieldPath": "totalXP", "order": "DESCENDING" }, { "fieldPath": "__name__", "order": "DESCENDING" }
+    ] },
+    { "collectionGroup": "users", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "searchTokens", "arrayConfig": "CONTAINS" }, { "fieldPath": "accountStatus", "order": "ASCENDING" }, { "fieldPath": "currentRank", "order": "ASCENDING" }, { "fieldPath": "totalXP", "order": "DESCENDING" }, { "fieldPath": "__name__", "order": "DESCENDING" }
+    ] },
+    { "collectionGroup": "forum_reports", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "createdAt", "order": "DESCENDING" }, { "fieldPath": "__name__", "order": "DESCENDING" }
+    ] },
+    { "collectionGroup": "forum_reports", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "status", "order": "ASCENDING" }, { "fieldPath": "createdAt", "order": "DESCENDING" }, { "fieldPath": "__name__", "order": "DESCENDING" }
+    ] },
+    { "collectionGroup": "forum_reports", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "reasonCode", "order": "ASCENDING" }, { "fieldPath": "createdAt", "order": "DESCENDING" }, { "fieldPath": "__name__", "order": "DESCENDING" }
+    ] },
+    { "collectionGroup": "forum_reports", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "status", "order": "ASCENDING" }, { "fieldPath": "reasonCode", "order": "ASCENDING" }, { "fieldPath": "createdAt", "order": "DESCENDING" }, { "fieldPath": "__name__", "order": "DESCENDING" }
+    ] },
+    { "collectionGroup": "forum_reports", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "searchTokens", "arrayConfig": "CONTAINS" }, { "fieldPath": "createdAt", "order": "DESCENDING" }, { "fieldPath": "__name__", "order": "DESCENDING" }
+    ] },
+    { "collectionGroup": "forum_reports", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "searchTokens", "arrayConfig": "CONTAINS" }, { "fieldPath": "status", "order": "ASCENDING" }, { "fieldPath": "createdAt", "order": "DESCENDING" }, { "fieldPath": "__name__", "order": "DESCENDING" }
+    ] },
+    { "collectionGroup": "forum_reports", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "searchTokens", "arrayConfig": "CONTAINS" }, { "fieldPath": "reasonCode", "order": "ASCENDING" }, { "fieldPath": "createdAt", "order": "DESCENDING" }, { "fieldPath": "__name__", "order": "DESCENDING" }
+    ] },
+    { "collectionGroup": "forum_reports", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "searchTokens", "arrayConfig": "CONTAINS" }, { "fieldPath": "status", "order": "ASCENDING" }, { "fieldPath": "reasonCode", "order": "ASCENDING" }, { "fieldPath": "createdAt", "order": "DESCENDING" }, { "fieldPath": "__name__", "order": "DESCENDING" }
+    ] }
+  ],
+  "fieldOverrides": []
+}

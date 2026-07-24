@@ -7,7 +7,35 @@ import { auditAdminService } from '@/services/auditAdminService';
 import { formatAdminDateTime } from '@/lib/utils/historicalDate';
 
 export const dynamic = 'force-dynamic';
+
+const actionLabels: Record<string, string> = {
+  create: 'Tạo mới',
+  update: 'Cập nhật',
+  publish: 'Xuất bản',
+  unpublish: 'Gỡ xuất bản',
+  soft_delete: 'Chuyển vào thùng rác',
+  restore: 'Khôi phục',
+  permanent_delete: 'Xóa vĩnh viễn',
+  delete: 'Xóa',
+  index: 'Lập chỉ mục',
+  pdf_index: 'Lập chỉ mục tài liệu',
+  knowledge_index: 'Lập chỉ mục tài liệu',
+  user_ban: 'Khóa tài khoản',
+  user_unban: 'Mở khóa tài khoản',
+};
+
+const entityTypeLabels: Record<string, string> = {
+  period: 'Thời kỳ',
+  stage: 'Giai đoạn',
+  event: 'Sự kiện',
+  person: 'Nhân vật',
+  article: 'Bài viết',
+  report: 'Báo cáo',
+  user: 'Người dùng',
+  knowledge_source: 'Tài liệu',
+};
+
 export default async function AuditLogsPage() {
   const logs = (await auditAdminService.list().catch(() => ({ items: [] }))).items;
-  return <AdminShell><PageHeader eyebrow="Hệ thống" title="Audit logs" description="Dấu vết create, update, publish, unpublish, soft delete, restore và graph sync của quản trị viên." />{logs.length ? <DataTable><TableHead><TableRow><TableHeaderCell>Thời gian</TableHeaderCell><TableHeaderCell>Admin</TableHeaderCell><TableHeaderCell>Action</TableHeaderCell><TableHeaderCell>Loại</TableHeaderCell><TableHeaderCell>Đối tượng</TableHeaderCell><TableHeaderCell>Firestore path</TableHeaderCell></TableRow></TableHead><tbody>{logs.map((log) => <TableRow key={log.id}><TableCell>{formatAdminDateTime(log.createdAt)}</TableCell><TableCell>{log.actorEmail ?? 'system'}</TableCell><TableCell><Badge tone={log.action === 'soft_delete' ? 'red' : 'gold'}>{log.action}</Badge></TableCell><TableCell>{log.entityType}</TableCell><TableCell className="font-bold">{log.entityTitle ?? 'N/A'}</TableCell><TableCell className="max-w-80 truncate text-xs">{log.entityPath}</TableCell></TableRow>)}</tbody></DataTable> : <EmptyState title="Chưa có audit log" description="Thao tác quản trị mới sẽ được lưu trong admin_audit_logs." />}</AdminShell>;
+  return <AdminShell><PageHeader eyebrow="Hệ thống" title="Nhật ký hoạt động" description="Theo dõi các thay đổi quan trọng do quản trị viên thực hiện." />{logs.length ? <DataTable><TableHead><TableRow><TableHeaderCell>Thời gian</TableHeaderCell><TableHeaderCell>Quản trị viên</TableHeaderCell><TableHeaderCell>Thao tác</TableHeaderCell><TableHeaderCell>Loại</TableHeaderCell><TableHeaderCell>Đối tượng</TableHeaderCell></TableRow></TableHead><tbody>{logs.map((log) => <TableRow key={log.id}><TableCell>{formatAdminDateTime(log.createdAt)}</TableCell><TableCell>{log.actorEmail ?? 'Hệ thống'}</TableCell><TableCell><Badge tone={log.action === 'soft_delete' ? 'red' : 'gold'}>{actionLabels[log.action ?? ''] ?? 'Cập nhật'}</Badge></TableCell><TableCell>{entityTypeLabels[log.entityType ?? ''] ?? 'Nội dung'}</TableCell><TableCell className="font-bold">{log.entityTitle ?? 'Không có tiêu đề'}</TableCell></TableRow>)}</tbody></DataTable> : <EmptyState title="Chưa có hoạt động" description="Các thay đổi quan trọng sẽ xuất hiện tại đây." />}</AdminShell>;
 }

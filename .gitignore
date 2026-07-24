@@ -1,4 +1,6 @@
 .next/
+.firebase/
+.data/
 node_modules/
 .venv/
 dist/

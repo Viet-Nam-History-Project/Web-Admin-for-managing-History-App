@@ -10,5 +10,5 @@ export default async function EditEventPage({ params }: { params: Promise<{ peri
   const { periodSlug, stageSlug, eventSlug } = await params;
   const event = await eventAdminService.get(periodSlug, stageSlug, eventSlug).catch(() => null);
   if (!event) notFound();
-  return <AdminShell><PageHeader eyebrow="Giai đoạn / Sự kiện" title={`Sửa: ${event.title}`} description="Các phần Lí do, Mục tiêu, Lực lượng, Diễn biến, Kết quả và Ý nghĩa được chuyển thành cấu trúc Firestore thật." /><ContentEditor kind="event" editing endpoint={`/api/admin/periods/${periodSlug}/stages/${stageSlug}/events/${eventSlug}`} returnTo={`/content/periods/${periodSlug}/stages/${stageSlug}/events/${eventSlug}`} initial={eventEditorValues(event)} /></AdminShell>;
+  return <AdminShell><PageHeader eyebrow="Giai đoạn / Sự kiện" title={`Sửa: ${event.title}`} description="Cập nhật nguyên nhân, diễn biến, kết quả và ý nghĩa của sự kiện." /><ContentEditor kind="event" editing endpoint={`/api/admin/periods/${periodSlug}/stages/${stageSlug}/events/${eventSlug}`} returnTo={`/content/periods/${periodSlug}/stages/${stageSlug}/events/${eventSlug}`} initial={eventEditorValues(event)} /></AdminShell>;
 }

@@ -3,8 +3,7 @@ import { writeAuditLog } from '@/lib/audit/auditLogger';
 import { paths } from '@/lib/firebase/firestorePaths';
 import { eventSchema, eventUpdateSchema, EventPayload } from '@/lib/validation/contentSchemas';
 import { createCollectionRepository } from '@/services/baseRepository';
-import { graphSyncService } from '@/services/graphSyncService';
-import { prepareFirestoreContent, syncWithStatus } from '@/services/contentMutationHelpers';
+import { prepareFirestoreContent } from '@/services/contentMutationHelpers';
 import { trashAdminService } from '@/services/trashAdminService';
 import { stageAdminService } from '@/services/stageAdminService';
 
@@ -13,7 +12,6 @@ export interface AdminEvent extends EventPayload {
   periodSlug?: string;
   stageSlug?: string;
   stageTitle?: string;
-  graphSyncStatus?: string;
   updatedAt?: unknown;
   updated_at?: unknown;
 }
@@ -43,7 +41,6 @@ export const eventAdminService = {
     if (await eventRepository(periodSlug, stageSlug).get(data.slug)) throw new Error('Slug sự kiện đã tồn tại trong giai đoạn này.');
     await eventRepository(periodSlug, stageSlug).create(data.slug, prepareFirestoreContent(data));
     await writeAuditLog({ actor, action: 'create', entityType: 'event', entityPath: paths.event(periodSlug, stageSlug, data.slug), entityTitle: data.title, after: data });
-    await this.sync(actor, periodSlug, stageSlug, data.slug);
     return data.slug;
   },
 
@@ -51,7 +48,7 @@ export const eventAdminService = {
     const data = eventUpdateSchema.parse(payload);
     const before = await eventRepository(periodSlug, stageSlug).get(eventSlug);
     if (!before) throw new Error('Không tìm thấy sự kiện.');
-    await eventRepository(periodSlug, stageSlug).update(eventSlug, { ...prepareFirestoreContent(data), graphSyncStatus: 'pending' });
+    await eventRepository(periodSlug, stageSlug).update(eventSlug, prepareFirestoreContent(data));
     await writeAuditLog({ actor, action: 'update', entityType: 'event', entityPath: paths.event(periodSlug, stageSlug, eventSlug), entityTitle: before.title, before, after: data });
   },
 
@@ -83,13 +80,5 @@ export const eventAdminService = {
     if (!before) throw new Error('Không tìm thấy sự kiện.');
     await eventRepository(periodSlug, stageSlug).unpublish(eventSlug);
     await writeAuditLog({ actor, action: 'unpublish', entityType: 'event', entityPath: paths.event(periodSlug, stageSlug, eventSlug), entityTitle: before.title, before, after: { status: 'draft' } });
-  },
-
-  async sync(actor: AdminActor, periodSlug: string, stageSlug: string, eventSlug: string) {
-    const entity = await eventRepository(periodSlug, stageSlug).get(eventSlug);
-    if (!entity) throw new Error('Không tìm thấy sự kiện.');
-    const result = await syncWithStatus(paths.event(periodSlug, stageSlug, eventSlug), () => graphSyncService.syncEvent(periodSlug, stageSlug, eventSlug, entity));
-    await writeAuditLog({ actor, action: 'sync_graph', entityType: 'event', entityPath: paths.event(periodSlug, stageSlug, eventSlug), entityTitle: entity.title, after: result });
-    return result;
   },
 };

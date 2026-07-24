@@ -4,7 +4,7 @@ import { requireAdmin } from '@/lib/auth/requireAdmin';
 import { forumAdminService } from '@/services/forumAdminService';
 
 const moderationSchema = z.object({
-  reportPath: z.string().regex(/^forum\/[^/]+\/reports\/[^/]+$/),
+  reportPath: z.string().regex(/^forum_reports\/[^/]+$/),
   action: z.enum(['review', 'dismiss', 'hide_post']),
   note: z.string().max(1000).optional().default(''),
 });
@@ -27,6 +27,8 @@ export async function GET(request: NextRequest) {
       status: query.get('status') ?? '',
       reason: query.get('reason') ?? '',
       search: query.get('search') ?? '',
+      cursor: query.get('cursor') ?? '',
+      pageSize: Number(query.get('pageSize') ?? 25),
     }));
   } catch (error) {
     return errorResponse(error, 'Không tải được báo cáo vi phạm.');

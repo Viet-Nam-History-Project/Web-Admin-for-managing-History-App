@@ -42,17 +42,6 @@ function rankForXp(xp: number) {
   return 'Newcomer';
 }
 
-async function listAuthUsers() {
-  const users = new Map<string, Awaited<ReturnType<ReturnType<typeof getAdminAuth>['getUser']>>>();
-  let pageToken: string | undefined;
-  do {
-    const page = await getAdminAuth().listUsers(1000, pageToken);
-    page.users.forEach((user) => users.set(user.uid, user));
-    pageToken = page.pageToken;
-  } while (pageToken && users.size < 5000);
-  return users;
-}
-
 function mapUser(uid: string, data: Record<string, any>, authUser?: Awaited<ReturnType<ReturnType<typeof getAdminAuth>['getUser']>>): ManagedUser {
   const disabled = Boolean(authUser?.disabled || data.accountStatus === 'banned');
   return {
@@ -77,28 +66,54 @@ function mapUser(uid: string, data: Record<string, any>, authUser?: Awaited<Retu
 }
 
 export const userAdminService = {
-  async list(options: { search?: string; status?: string; rank?: string } = {}) {
+  async list(options: { search?: string; status?: string; rank?: string; cursor?: string; pageSize?: number } = {}) {
     const db = getAdminDb();
-    const [snapshot, authUsers] = await Promise.all([
-      db.collection(paths.users).limit(5000).get(),
-      listAuthUsers(),
+    const pageSize = Math.min(100, Math.max(10, Number(options.pageSize) || 25));
+    const normalizedSearch = options.search?.trim().toLocaleLowerCase('vi-VN') ?? '';
+    let query: FirebaseFirestore.Query = db.collection(paths.users);
+    if (options.status && options.status !== 'all') query = query.where('accountStatus', '==', options.status);
+    if (options.rank && options.rank !== 'all') query = query.where('currentRank', '==', options.rank);
+    if (normalizedSearch) query = query.where('searchTokens', 'array-contains', normalizedSearch);
+    const filterCount = Number(Boolean(options.status && options.status !== 'all'))
+      + Number(Boolean(options.rank && options.rank !== 'all'))
+      + Number(Boolean(normalizedSearch));
+    if (filterCount === 0 || filterCount > 1) query = query.orderBy('totalXP', 'desc');
+
+    if (options.cursor) {
+      try {
+        const cursor = JSON.parse(Buffer.from(options.cursor, 'base64url').toString('utf8')) as { path?: string };
+        if (/^users\/[^/]+$/.test(cursor.path ?? '')) {
+          const cursorSnapshot = await db.doc(cursor.path!).get();
+          if (cursorSnapshot.exists) query = query.startAfter(cursorSnapshot);
+        }
+      } catch {
+        // Cursor sai định dạng được xem như trang đầu, không chuyển thành query không kiểm soát.
+      }
+    }
+
+    const [snapshot, statsSnapshot] = await Promise.all([
+      query.limit(pageSize + 1).get(),
+      db.doc('admin_stats/users').get(),
     ]);
-    const search = options.search?.trim().toLowerCase();
-    const allItems = snapshot.docs.map((doc) => mapUser(doc.id, doc.data(), authUsers.get(doc.id)));
-    const items = allItems.filter((user) => {
-      if (search && !`${user.displayName} ${user.username} ${user.email} ${user.uid}`.toLowerCase().includes(search)) return false;
-      if (options.status && options.status !== 'all' && user.accountStatus !== options.status) return false;
-      if (options.rank && options.rank !== 'all' && user.currentRank !== options.rank) return false;
-      return true;
-    }).sort((a, b) => b.totalXP - a.totalXP);
+    const hasNextPage = snapshot.size > pageSize;
+    const visibleDocs = snapshot.docs.slice(0, pageSize);
+    const items = visibleDocs.map((document) => mapUser(document.id, document.data()));
+    const last = visibleDocs.at(-1);
+    const nextCursor = hasNextPage && last
+      ? Buffer.from(JSON.stringify({ path: last.ref.path })).toString('base64url')
+      : null;
+    const stats = statsSnapshot.data() ?? {};
     return {
       items,
+      pageSize,
+      hasNextPage,
+      nextCursor,
       stats: {
-        total: allItems.length,
-        active: allItems.filter((user) => !user.disabled).length,
-        banned: allItems.filter((user) => user.disabled).length,
-        activeStreaks: allItems.filter((user) => user.currentStreak > 0).length,
-        totalXp: allItems.reduce((sum, user) => sum + user.totalXP, 0),
+        total: Number(stats.total ?? 0),
+        active: Number(stats.active ?? 0),
+        banned: Number(stats.banned ?? 0),
+        activeStreaks: Number(stats.activeStreaks ?? 0),
+        totalXp: Number(stats.totalXp ?? 0),
       },
     };
   },
@@ -142,6 +157,13 @@ export const userAdminService = {
     } : {
       accountStatus: 'active', banReason: FieldValue.delete(), bannedAt: FieldValue.delete(), bannedBy: FieldValue.delete(), updatedAt: FieldValue.serverTimestamp(),
     }, { merge: true });
+    if (before.disabled !== disabled) {
+      await getAdminDb().doc('admin_stats/users').set({
+        active: FieldValue.increment(disabled ? -1 : 1),
+        banned: FieldValue.increment(disabled ? 1 : -1),
+        updatedAt: FieldValue.serverTimestamp(),
+      }, { merge: true });
+    }
     await writeAuditLog({ actor, action: disabled ? 'user_ban' : 'user_unban', entityType: 'user', entityPath: `${paths.users}/${uid}`, entityTitle: before.displayName, before: { disabled: before.disabled }, after: { disabled, reason } });
   },
 
@@ -159,6 +181,10 @@ export const userAdminService = {
       afterXp = Math.max(0, beforeXp + delta);
       nextRank = rankForXp(afterXp);
       transaction.set(ref, { totalXP: afterXp, currentRank: nextRank, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+      transaction.set(getAdminDb().doc('admin_stats/users'), {
+        totalXp: FieldValue.increment(afterXp - beforeXp),
+        updatedAt: FieldValue.serverTimestamp(),
+      }, { merge: true });
     });
     await writeAuditLog({ actor, action: 'manual_xp_update', entityType: 'user', entityPath: ref.path, entityTitle: uid, before: { totalXP: beforeXp }, after: { totalXP: afterXp, currentRank: nextRank, delta, reason: reason.trim() } });
   },

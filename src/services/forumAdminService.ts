@@ -30,7 +30,7 @@ export interface ForumReportItem {
   updatedAt: string;
 }
 
-type ReportFilters = { status?: string; reason?: string; search?: string };
+type ReportFilters = { status?: string; reason?: string; search?: string; cursor?: string; pageSize?: number };
 
 const VALID_STATUSES = new Set<ForumReportStatus>(['pending', 'reviewing', 'resolved', 'dismissed']);
 
@@ -51,32 +51,61 @@ function toIso(value: unknown) {
   return toDate(value)?.toISOString() ?? '';
 }
 
+function statusCounterUpdate(from: string, to: ForumReportStatus) {
+  const update: Record<string, unknown> = { updatedAt: FieldValue.serverTimestamp() };
+  if (from !== to) {
+    update[from] = FieldValue.increment(-1);
+    update[to] = FieldValue.increment(1);
+  }
+  return update;
+}
+
 export const forumAdminService = {
   async listReports(filters: ReportFilters = {}) {
     const db = getAdminDb();
-    const snapshot = await db.collectionGroup('reports').get();
     const search = filters.search?.trim().toLocaleLowerCase('vi-VN') ?? '';
-    const reportDocuments = snapshot.docs.filter((document) => /^forum\/[^/]+\/reports\/[^/]+$/.test(document.ref.path));
-    const postIds = [...new Set(reportDocuments.map((document) => String(document.data().postId ?? document.ref.parent.parent?.id ?? '')).filter(Boolean))];
-    const postSnapshots = postIds.length
-      ? await db.getAll(...postIds.map((postId) => db.doc(`forum/${postId}`)))
-      : [];
-    const postsById = new Map(postSnapshots.map((document) => [document.id, document.data()]));
+    const pageSize = Math.min(100, Math.max(10, Number(filters.pageSize) || 25));
+    let query: FirebaseFirestore.Query = db.collection('forum_reports');
+    if (filters.status && filters.status !== 'all') query = query.where('status', '==', filters.status);
+    if (filters.reason && filters.reason !== 'all') query = query.where('reasonCode', '==', filters.reason);
+    if (search) query = query.where('searchTokens', 'array-contains', search);
+    const filterCount = Number(Boolean(filters.status && filters.status !== 'all'))
+      + Number(Boolean(filters.reason && filters.reason !== 'all'))
+      + Number(Boolean(search));
+    if (filterCount === 0 || filterCount > 1) query = query.orderBy('createdAt', 'desc');
 
-    const allItems = reportDocuments
+    if (filters.cursor) {
+      try {
+        const cursor = JSON.parse(Buffer.from(filters.cursor, 'base64url').toString('utf8')) as { path?: string };
+        if (/^forum_reports\/[^/]+$/.test(cursor.path ?? '')) {
+          const cursorSnapshot = await db.doc(cursor.path!).get();
+          if (cursorSnapshot.exists) query = query.startAfter(cursorSnapshot);
+        }
+      } catch {
+        // Cursor sai định dạng được bỏ qua an toàn.
+      }
+    }
+
+    const [snapshot, statsSnapshot] = await Promise.all([
+      query.limit(pageSize + 1).get(),
+      db.doc('admin_stats/forum_reports').get(),
+    ]);
+    const hasNextPage = snapshot.size > pageSize;
+    const reportDocuments = snapshot.docs.slice(0, pageSize);
+
+    const items = reportDocuments
       .map((document): ForumReportItem => {
         const data = document.data();
-        const postId = String(data.postId ?? document.ref.parent.parent?.id ?? '');
-        const post = postsById.get(postId);
-        const postHidden = post?.isHidden === true;
+        const postId = String(data.postId ?? '');
+        const postHidden = data.postHidden === true;
         const storedStatus = VALID_STATUSES.has(data.status) ? data.status : 'pending';
         const status: ForumReportStatus = postHidden ? 'resolved' : storedStatus;
         return {
           id: document.id,
           path: document.ref.path,
           postId,
-          postTitle: String(post?.title ?? data.postTitle ?? 'Bài viết không có tiêu đề'),
-          postContent: String(post?.content ?? data.postContentSnapshot ?? ''),
+          postTitle: String(data.postTitle ?? 'Bài viết không có tiêu đề'),
+          postContent: String(data.postContentSnapshot ?? ''),
           postContentSnapshot: String(data.postContentSnapshot ?? ''),
           postHidden,
           reportedUserId: String(data.reportedUserId ?? ''),
@@ -94,40 +123,24 @@ export const forumAdminService = {
           createdAt: toIso(data.createdAt),
           updatedAt: toIso(data.updatedAt),
         };
-      })
-      .sort((left, right) => Date.parse(right.createdAt || '1970-01-01') - Date.parse(left.createdAt || '1970-01-01'));
-
-    const items = allItems.filter((item) => {
-      if (filters.status && filters.status !== 'all' && item.status !== filters.status) return false;
-      if (filters.reason && filters.reason !== 'all' && item.reasonCode !== filters.reason) return false;
-      if (!search) return true;
-      return [
-        item.id,
-        item.path,
-        item.postId,
-        item.postTitle,
-        item.postContent,
-        item.postContentSnapshot,
-        item.description,
-        item.reasonCode,
-        item.reasonLabel,
-        item.reporterName,
-        item.reporterId,
-        item.reporterEmail,
-        item.reportedUserName,
-        item.reportedUserId,
-        item.moderatorName,
-      ].some((value) => value.toLocaleLowerCase('vi-VN').includes(search));
-    });
+      });
+    const last = reportDocuments.at(-1);
+    const nextCursor = hasNextPage && last
+      ? Buffer.from(JSON.stringify({ path: last.ref.path })).toString('base64url')
+      : null;
+    const stats = statsSnapshot.data() ?? {};
 
     return {
       items,
+      pageSize,
+      hasNextPage,
+      nextCursor,
       stats: {
-        total: allItems.length,
-        pending: allItems.filter((item) => item.status === 'pending').length,
-        reviewing: allItems.filter((item) => item.status === 'reviewing').length,
-        resolved: allItems.filter((item) => item.status === 'resolved').length,
-        dismissed: allItems.filter((item) => item.status === 'dismissed').length,
+        total: Number(stats.total ?? 0),
+        pending: Number(stats.pending ?? 0),
+        reviewing: Number(stats.reviewing ?? 0),
+        resolved: Number(stats.resolved ?? 0),
+        dismissed: Number(stats.dismissed ?? 0),
       },
     };
   },
@@ -138,7 +151,7 @@ export const forumAdminService = {
     action: ForumModerationAction,
     note = '',
   ) {
-    if (!/^forum\/[^/]+\/reports\/[^/]+$/.test(reportPath)) {
+    if (!/^forum_reports\/[^/]+$/.test(reportPath)) {
       throw new Error('Đường dẫn báo cáo không hợp lệ.');
     }
 
@@ -148,8 +161,9 @@ export const forumAdminService = {
     if (!reportSnapshot.exists) throw new Error('Báo cáo không còn tồn tại.');
 
     const before = reportSnapshot.data() ?? {};
-    const postRef = reportRef.parent.parent;
-    if (!postRef) throw new Error('Không xác định được bài viết bị báo cáo.');
+    const postPath = String(before.postPath ?? '');
+    if (!/^forum\/[^/]+$/.test(postPath)) throw new Error('Không xác định được bài viết bị báo cáo.');
+    const postRef = db.doc(postPath);
     const postSnapshot = await postRef.get();
     if (postSnapshot.data()?.isHidden === true && action !== 'hide_post') {
       throw new Error('Bài viết đã bị ẩn và báo cáo đã được xử lý.');
@@ -169,11 +183,17 @@ export const forumAdminService = {
     if (action === 'review') {
       auditAction = 'moderation_review';
       reportUpdate = { ...common, status: 'reviewing', resolution: 'under_review' };
-      await reportRef.update(reportUpdate);
+      const batch = db.batch();
+      batch.update(reportRef, reportUpdate);
+      batch.set(db.doc('admin_stats/forum_reports'), statusCounterUpdate(String(before.status ?? 'pending'), 'reviewing'), { merge: true });
+      await batch.commit();
     } else if (action === 'dismiss') {
       auditAction = 'moderation_dismiss';
       reportUpdate = { ...common, status: 'dismissed', resolution: 'no_violation', resolvedAt: FieldValue.serverTimestamp() };
-      await reportRef.update(reportUpdate);
+      const batch = db.batch();
+      batch.update(reportRef, reportUpdate);
+      batch.set(db.doc('admin_stats/forum_reports'), statusCounterUpdate(String(before.status ?? 'pending'), 'dismissed'), { merge: true });
+      await batch.commit();
     } else {
       auditAction = 'moderation_hide_content';
       reportUpdate = { ...common, status: 'resolved', resolution: 'content_hidden', resolvedAt: FieldValue.serverTimestamp() };
@@ -186,6 +206,7 @@ export const forumAdminService = {
         hiddenByUid: actor.uid,
         hiddenByName: actor.displayName || actor.email,
       });
+      batch.set(db.doc('admin_stats/forum_reports'), statusCounterUpdate(String(before.status ?? 'pending'), 'resolved'), { merge: true });
       await batch.commit();
     }
 

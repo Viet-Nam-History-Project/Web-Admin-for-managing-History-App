@@ -11,5 +11,5 @@ export default async function EditStagePage({ params }: { params: Promise<{ peri
   const { periodSlug, stageSlug } = await params;
   const stage = await stageAdminService.get(periodSlug, stageSlug).catch(() => null);
   if (!stage) notFound();
-  return <AdminShell><PageHeader eyebrow="Thời kỳ / Giai đoạn" title={`Sửa: ${stage.title}`} description="Dữ liệu được ghi vào subcollection stages của đúng thời kỳ cha." /><ContentEditor kind="stage" editing endpoint={`/api/admin/periods/${periodSlug}/stages/${stageSlug}`} returnTo={`/content/periods/${periodSlug}/stages/${stageSlug}`} initial={stageEditorValues(stage)} /></AdminShell>;
+  return <AdminShell><PageHeader eyebrow="Thời kỳ / Giai đoạn" title={`Sửa: ${stage.title}`} description="Cập nhật thông tin và nội dung của giai đoạn." /><ContentEditor kind="stage" editing endpoint={`/api/admin/periods/${periodSlug}/stages/${stageSlug}`} returnTo={`/content/periods/${periodSlug}/stages/${stageSlug}`} initial={stageEditorValues(stage)} /></AdminShell>;
 }

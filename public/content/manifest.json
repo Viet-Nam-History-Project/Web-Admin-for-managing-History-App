@@ -1,0 +1,328 @@
+{
+  "contentVersion": "v-fb961ab57324590c",
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-22T04:12:53.598Z",
+  "minAppVersion": "1.0.0",
+  "files": {
+    "periods.json": {
+      "url": "v-fb961ab57324590c/periods.json",
+      "sha256": "27979136dda7fc51b661eaa971ec8b6eb0e57ce40ede4c54c1e71cc66e014b09",
+      "size": 6431
+    },
+    "periods/buoi-dau-dung-nuoc-va-giu-nuoc/stages.json": {
+      "url": "v-fb961ab57324590c/periods/buoi-dau-dung-nuoc-va-giu-nuoc/stages.json",
+      "sha256": "6dad74662e5e1505c9052aa99e0262308b9206e781615eccbe965e2d44ebc0a8",
+      "size": 3430
+    },
+    "periods/buoi-dau-dung-nuoc-va-giu-nuoc/stages/tien-dong-son-va-co-so-hinh-thanh-nha-nuoc/events.json": {
+      "url": "v-fb961ab57324590c/periods/buoi-dau-dung-nuoc-va-giu-nuoc/stages/tien-dong-son-va-co-so-hinh-thanh-nha-nuoc/events.json",
+      "sha256": "de94a5fc934f50c54f4e35e21672427a62e9093cf41107688f5d6187f5a88a0d",
+      "size": 4237
+    },
+    "periods/buoi-dau-dung-nuoc-va-giu-nuoc/stages/van-lang-va-van-hoa-dong-son/events.json": {
+      "url": "v-fb961ab57324590c/periods/buoi-dau-dung-nuoc-va-giu-nuoc/stages/van-lang-va-van-hoa-dong-son/events.json",
+      "sha256": "fe361d771738656073a28a4a9d6dab9db3efca956a7f7df2113fb807d94d1ff0",
+      "size": 4913
+    },
+    "periods/buoi-dau-dung-nuoc-va-giu-nuoc/stages/au-lac-va-thanh-co-loa/events.json": {
+      "url": "v-fb961ab57324590c/periods/buoi-dau-dung-nuoc-va-giu-nuoc/stages/au-lac-va-thanh-co-loa/events.json",
+      "sha256": "78a0eed668ad3f0eb619e8724bd6cb5ab6a56423d9003517ede41ee0096e0539",
+      "size": 4582
+    },
+    "periods/bao-ve-nen-doc-lap/stages.json": {
+      "url": "v-fb961ab57324590c/periods/bao-ve-nen-doc-lap/stages.json",
+      "sha256": "b364c66aa90ee0f877d884cc6b39a2583ef31fa4222dc64ad86831d4a2043876",
+      "size": 4115
+    },
+    "periods/bao-ve-nen-doc-lap/stages/ngo-dinh-tien-le/events.json": {
+      "url": "v-fb961ab57324590c/periods/bao-ve-nen-doc-lap/stages/ngo-dinh-tien-le/events.json",
+      "sha256": "6b1af368f8bd7b61a605a1e1ab05cabec63c3a20b6b649eeecd3d680521a8baf",
+      "size": 5896
+    },
+    "periods/bao-ve-nen-doc-lap/stages/ly-tran-va-van-minh-dai-viet/events.json": {
+      "url": "v-fb961ab57324590c/periods/bao-ve-nen-doc-lap/stages/ly-tran-va-van-minh-dai-viet/events.json",
+      "sha256": "a146908395ccac5988fc996533edc5b3010f1255f7af9ea09fe49a1a806c41af",
+      "size": 6660
+    },
+    "periods/bao-ve-nen-doc-lap/stages/le-so-va-lam-son/events.json": {
+      "url": "v-fb961ab57324590c/periods/bao-ve-nen-doc-lap/stages/le-so-va-lam-son/events.json",
+      "sha256": "897e7b72f24e72c8fb4bf9cab72e4b5fe91dc1f1ebf43a4d69039d50c88e198f",
+      "size": 4685
+    },
+    "periods/bao-ve-nen-doc-lap/stages/tay-son-nguyen-cuoi-trung-dai/events.json": {
+      "url": "v-fb961ab57324590c/periods/bao-ve-nen-doc-lap/stages/tay-son-nguyen-cuoi-trung-dai/events.json",
+      "sha256": "edccc287d34ddc3854daa118db5f41b3a22b75a3eb9cd6453eee43b9f26d98fe",
+      "size": 4139
+    },
+    "periods/chong-thuc-dan-phap/stages.json": {
+      "url": "v-fb961ab57324590c/periods/chong-thuc-dan-phap/stages.json",
+      "sha256": "6d9704513727643cfcd0ce866a9271e794c8e1f1130919f561aa56f582e38d87",
+      "size": 6660
+    },
+    "periods/chong-thuc-dan-phap/stages/phong-trao-yeu-nuoc-cuoi-tk19/events.json": {
+      "url": "v-fb961ab57324590c/periods/chong-thuc-dan-phap/stages/phong-trao-yeu-nuoc-cuoi-tk19/events.json",
+      "sha256": "672d237bb196cf7eaea5ec090499f79e36a997fd2931c063b25515886ffbc99e",
+      "size": 9079
+    },
+    "periods/chong-thuc-dan-phap/stages/phong-trao-dau-tk20-den-1930/events.json": {
+      "url": "v-fb961ab57324590c/periods/chong-thuc-dan-phap/stages/phong-trao-dau-tk20-den-1930/events.json",
+      "sha256": "5389170007c04def6d8bb3d56e0cdf405d502e2ae52c941c0edc7b603e9b2a0b",
+      "size": 5963
+    },
+    "periods/chong-thuc-dan-phap/stages/cach-mang-thang-tam-va-nam-dau-khang-chien/events.json": {
+      "url": "v-fb961ab57324590c/periods/chong-thuc-dan-phap/stages/cach-mang-thang-tam-va-nam-dau-khang-chien/events.json",
+      "sha256": "5e8672603fbae7864910f499ca9d77d06892de9c4ce819bfdfad5424bce18b09",
+      "size": 6570
+    },
+    "periods/chong-thuc-dan-phap/stages/cuoc-khang-chien-den-dien-bien-phu/events.json": {
+      "url": "v-fb961ab57324590c/periods/chong-thuc-dan-phap/stages/cuoc-khang-chien-den-dien-bien-phu/events.json",
+      "sha256": "19454fb32eaab2d31f8df3aa4fcb75279c6155ed753128074b51a4f4360420fb",
+      "size": 10760
+    },
+    "periods/khang-chien-chong-my/stages.json": {
+      "url": "v-fb961ab57324590c/periods/khang-chien-chong-my/stages.json",
+      "sha256": "d4e70bf8195441f0d7ed267908dea4b70afab22998e2558847180046b62a49d2",
+      "size": 8749
+    },
+    "periods/khang-chien-chong-my/stages/giu-luc-luong-dong-khoi/events.json": {
+      "url": "v-fb961ab57324590c/periods/khang-chien-chong-my/stages/giu-luc-luong-dong-khoi/events.json",
+      "sha256": "8411a133b36db54bcbd369ffaf267a1a878064a04f392b0be87b6b59a8d9dee8",
+      "size": 38424
+    },
+    "periods/khang-chien-chong-my/stages/chien-tranh-dac-biet/events.json": {
+      "url": "v-fb961ab57324590c/periods/khang-chien-chong-my/stages/chien-tranh-dac-biet/events.json",
+      "sha256": "8e9f524ab7e9a94e2bef2d7f69da38c8b3027e5192b6f7bc23bab2c241ca9991",
+      "size": 30813
+    },
+    "periods/khang-chien-chong-my/stages/chien-tranh-cuc-bo/events.json": {
+      "url": "v-fb961ab57324590c/periods/khang-chien-chong-my/stages/chien-tranh-cuc-bo/events.json",
+      "sha256": "48d37dced8d8fccef479ce0ce4e88ab51374cae51e53c54d617eb7dabfdd520b",
+      "size": 16999
+    },
+    "periods/khang-chien-chong-my/stages/vn-hoa-chien-tranh-hiep-dinh-paris/events.json": {
+      "url": "v-fb961ab57324590c/periods/khang-chien-chong-my/stages/vn-hoa-chien-tranh-hiep-dinh-paris/events.json",
+      "sha256": "06adf205bb744fd1bd1bce180ba534e305f771d7a0124a4238759903322b3a35",
+      "size": 24067
+    },
+    "periods/khang-chien-chong-my/stages/giai-phong-mien-nam/events.json": {
+      "url": "v-fb961ab57324590c/periods/khang-chien-chong-my/stages/giai-phong-mien-nam/events.json",
+      "sha256": "58da55000ec9a70643d4dabaa5f302572b58b4c0500a55d83672fcf468857807",
+      "size": 58621
+    },
+    "periods/xay-dung-va-bao-ve-dat-nuoc/stages.json": {
+      "url": "v-fb961ab57324590c/periods/xay-dung-va-bao-ve-dat-nuoc/stages.json",
+      "sha256": "11d2963bc32b0f6c563ae1d7fb5ecad28c9523ee56584a46e551b727d8c85418",
+      "size": 6687
+    },
+    "periods/xay-dung-va-bao-ve-dat-nuoc/stages/thong-nhat-va-tai-thiet-dat-nuoc/events.json": {
+      "url": "v-fb961ab57324590c/periods/xay-dung-va-bao-ve-dat-nuoc/stages/thong-nhat-va-tai-thiet-dat-nuoc/events.json",
+      "sha256": "313882bd5bcfc9daf1ebad67bdb673f136a0f375bd0f267d1c01941b18427f4f",
+      "size": 5132
+    },
+    "periods/xay-dung-va-bao-ve-dat-nuoc/stages/bao-ve-bien-gioi-va-nghia-vu-quoc-te/events.json": {
+      "url": "v-fb961ab57324590c/periods/xay-dung-va-bao-ve-dat-nuoc/stages/bao-ve-bien-gioi-va-nghia-vu-quoc-te/events.json",
+      "sha256": "7c2b6ea6c3e5357bc75a4edc88db69656ae070ddc61156c231ec8e47013339c2",
+      "size": 5519
+    },
+    "periods/xay-dung-va-bao-ve-dat-nuoc/stages/doi-moi-va-hoi-nhap-quoc-te/events.json": {
+      "url": "v-fb961ab57324590c/periods/xay-dung-va-bao-ve-dat-nuoc/stages/doi-moi-va-hoi-nhap-quoc-te/events.json",
+      "sha256": "57da1bcd38cf562cd6676774ef5ffd778cf9f9f3d13e720bdc4f508e6e8e557a",
+      "size": 8044
+    },
+    "periods/xay-dung-va-bao-ve-dat-nuoc/stages/bao-ve-chu-quyen-va-phat-trien-ben-vung/events.json": {
+      "url": "v-fb961ab57324590c/periods/xay-dung-va-bao-ve-dat-nuoc/stages/bao-ve-chu-quyen-va-phat-trien-ben-vung/events.json",
+      "sha256": "a367cc303629f6b90cedc240eeca2e0e1168ab0e40cccf2a4033fc761a838770",
+      "size": 5702
+    },
+    "persons/periods.json": {
+      "url": "v-fb961ab57324590c/persons/periods.json",
+      "sha256": "8e26b16b9c336f6dbc2746791d285b6366271e199fcc5904580dde4ead631d80",
+      "size": 4423
+    },
+    "persons/buoi-dau-dung-nuoc-va-giu-nuoc/index.json": {
+      "url": "v-fb961ab57324590c/persons/buoi-dau-dung-nuoc-va-giu-nuoc/index.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "size": 3
+    },
+    "persons/test/index.json": {
+      "url": "v-fb961ab57324590c/persons/test/index.json",
+      "sha256": "d5e2e6ae7f4f7674e767561a600fc0ca2ff664c15de65cc44c2ca5076e7eceb8",
+      "size": 615
+    },
+    "persons/test/test.json": {
+      "url": "v-fb961ab57324590c/persons/test/test.json",
+      "sha256": "5d6af60f183c184b7f4a6cd608e1ce8a58cea8050feb270c236e1e484e7890e1",
+      "size": 613
+    },
+    "persons/test/test/events.json": {
+      "url": "v-fb961ab57324590c/persons/test/test/events.json",
+      "sha256": "de5f3cb56a638b5caf82500fc77bfcd656f1cc8aff073a7ee75cb8ad5ece0ee4",
+      "size": 567
+    },
+    "persons/bao-ve-nen-doc-lap/index.json": {
+      "url": "v-fb961ab57324590c/persons/bao-ve-nen-doc-lap/index.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "size": 3
+    },
+    "persons/chong-thuc-dan-phap/index.json": {
+      "url": "v-fb961ab57324590c/persons/chong-thuc-dan-phap/index.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "size": 3
+    },
+    "persons/khang-chien-chong-my/index.json": {
+      "url": "v-fb961ab57324590c/persons/khang-chien-chong-my/index.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "size": 3
+    },
+    "persons/xay-dung-va-bao-ve-dat-nuoc/index.json": {
+      "url": "v-fb961ab57324590c/persons/xay-dung-va-bao-ve-dat-nuoc/index.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "size": 3
+    },
+    "articles.json": {
+      "url": "v-fb961ab57324590c/articles.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "size": 3
+    },
+    "museums.json": {
+      "url": "v-fb961ab57324590c/museums.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "size": 3
+    },
+    "explore.json": {
+      "url": "v-fb961ab57324590c/explore.json",
+      "sha256": "e992761f56d61e1d6f4f1d00781e80d27347ced0f9a6b996f4c5cb43c2f2b278",
+      "size": 731
+    },
+    "events.json": {
+      "url": "v-fb961ab57324590c/events.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "size": 3
+    },
+    "timelines.json": {
+      "url": "v-fb961ab57324590c/timelines.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "size": 3
+    },
+    "games/quizzes.json": {
+      "url": "v-fb961ab57324590c/games/quizzes.json",
+      "sha256": "55829126e73ed9ef4e057e12dcbfd09214385503b2f6a7c934ee1cb65e71f810",
+      "size": 11547
+    },
+    "games/quizzes/quizz-buon-ma-thuot-1975-1/questions.json": {
+      "url": "v-fb961ab57324590c/games/quizzes/quizz-buon-ma-thuot-1975-1/questions.json",
+      "sha256": "b5d878daf3240daf0b4c70d4fde6e0599dae2ce9ca8be3332adb7df04d2d687f",
+      "size": 3908
+    },
+    "games/quizzes/quizz-buon-ma-thuot-1975-2/questions.json": {
+      "url": "v-fb961ab57324590c/games/quizzes/quizz-buon-ma-thuot-1975-2/questions.json",
+      "sha256": "c00fc115552139d32f77d238ce725b6bf5332dfea6b4027c705f16cb971f9052",
+      "size": 4020
+    },
+    "games/quizzes/quizz-chien-dich-ho-chi-minh-1975-1/questions.json": {
+      "url": "v-fb961ab57324590c/games/quizzes/quizz-chien-dich-ho-chi-minh-1975-1/questions.json",
+      "sha256": "ff45f48213ca86f0e3bcd4b2645b5052747f7763bca9744a2ea03ffc746ab939",
+      "size": 3644
+    },
+    "games/quizzes/quizz-duyen-hai-mien-trung-1975-1/questions.json": {
+      "url": "v-fb961ab57324590c/games/quizzes/quizz-duyen-hai-mien-trung-1975-1/questions.json",
+      "sha256": "ec92507599c62110ddd903bced6a3095c34e1661ecc7d86df76a9aab9f7e70a1",
+      "size": 3752
+    },
+    "games/quizzes/quizz-duyen-hai-mien-trung-1975-2/questions.json": {
+      "url": "v-fb961ab57324590c/games/quizzes/quizz-duyen-hai-mien-trung-1975-2/questions.json",
+      "sha256": "05dcbd1fae28724616b1f6712ade8087004bca88dfb81541aaecc7f84483c3e2",
+      "size": 3917
+    },
+    "games/quizzes/quizz-frequent-wind-1975-1/questions.json": {
+      "url": "v-fb961ab57324590c/games/quizzes/quizz-frequent-wind-1975-1/questions.json",
+      "sha256": "ae93270ae49a349d56aae874de3c2ffca91bd2a4d88d1be7a9be73529ff245ab",
+      "size": 3987
+    },
+    "games/quizzes/quizz-hue-da-nang-1975-1/questions.json": {
+      "url": "v-fb961ab57324590c/games/quizzes/quizz-hue-da-nang-1975-1/questions.json",
+      "sha256": "b047578264242996da2cfd7df65110359ebe415235de623ef32edc858f75d692",
+      "size": 3685
+    },
+    "games/quizzes/quizz-hue-da-nang-1975-2/questions.json": {
+      "url": "v-fb961ab57324590c/games/quizzes/quizz-hue-da-nang-1975-2/questions.json",
+      "sha256": "77b2192bd38441cc399422ee2499cd50d0fa1bfd53456525bdc5d62d37d05848",
+      "size": 3559
+    },
+    "games/quizzes/quizz-khung-hoang-chinh-tri-sai-gon-4-1975-1/questions.json": {
+      "url": "v-fb961ab57324590c/games/quizzes/quizz-khung-hoang-chinh-tri-sai-gon-4-1975-1/questions.json",
+      "sha256": "a1c0186e4c3d2d7c42b23e369cec0ce46f9750bbcef33520a1b6fbc32957a0dd",
+      "size": 3819
+    },
+    "games/quizzes/quizz-khung-hoang-chinh-tri-sai-gon-4-1975-2/questions.json": {
+      "url": "v-fb961ab57324590c/games/quizzes/quizz-khung-hoang-chinh-tri-sai-gon-4-1975-2/questions.json",
+      "sha256": "2f5d5ce0cd24281a68f3c46c07717fef78fcb55c6b0ae9e6d05909c6196fb091",
+      "size": 3709
+    },
+    "games/quizzes/quizz-operation-babylift-1975-1/questions.json": {
+      "url": "v-fb961ab57324590c/games/quizzes/quizz-operation-babylift-1975-1/questions.json",
+      "sha256": "d8e3a3b43cf6a7b08cb0842935543a29b3974092e15c73cb59866c5a6fc19732",
+      "size": 3836
+    },
+    "games/quizzes/quizz-operation-babylift-1975-2/questions.json": {
+      "url": "v-fb961ab57324590c/games/quizzes/quizz-operation-babylift-1975-2/questions.json",
+      "sha256": "6ed4bb4e140a1ab8e08da07ed8d907aeed5036b62c1b7314f80e8aaeff6aee7f",
+      "size": 3534
+    },
+    "games/quizzes/quizz-phuoc-long-1974-1975-1/questions.json": {
+      "url": "v-fb961ab57324590c/games/quizzes/quizz-phuoc-long-1974-1975-1/questions.json",
+      "sha256": "b278cfd5166e0431d4a9dfe20afcb3f7a43d61068366488cd2f25b7d1b1ae964",
+      "size": 3744
+    },
+    "games/quizzes/quizz-phuoc-long-1974-1975-2/questions.json": {
+      "url": "v-fb961ab57324590c/games/quizzes/quizz-phuoc-long-1974-1975-2/questions.json",
+      "sha256": "6b98b53b8f57234d38ae0360d267acffa9e6cd4f47e39d0f51754ad14b9cc5eb",
+      "size": 3786
+    },
+    "games/quizzes/quizz-rut-lui-ql7b-1975-1/questions.json": {
+      "url": "v-fb961ab57324590c/games/quizzes/quizz-rut-lui-ql7b-1975-1/questions.json",
+      "sha256": "09bdd0caad8c9fb726cfc5339575f7cb4e31bf433be523d5a328e5b290a431bd",
+      "size": 3899
+    },
+    "games/quizzes/quizz-rut-lui-ql7b-1975-2/questions.json": {
+      "url": "v-fb961ab57324590c/games/quizzes/quizz-rut-lui-ql7b-1975-2/questions.json",
+      "sha256": "0311840a81737da09f39f301a628d94a78efb68c50e5787492e7bb9bfe0ee67c",
+      "size": 4036
+    },
+    "games/quizzes/quizz-thuong-duc-1974-1/questions.json": {
+      "url": "v-fb961ab57324590c/games/quizzes/quizz-thuong-duc-1974-1/questions.json",
+      "sha256": "b720177a74c1ff43c0b8334399b538cdfbabd15a07e34c821d3ce7926e45dcae",
+      "size": 4440
+    },
+    "games/quizzes/quizz-thuong-duc-1974-2/questions.json": {
+      "url": "v-fb961ab57324590c/games/quizzes/quizz-thuong-duc-1974-2/questions.json",
+      "sha256": "13a5d37d4190166122d45bce1ba8172399589beab538e8ac83ec252b9bfc98f8",
+      "size": 4149
+    },
+    "games/quizzes/quizz-trua-30-4-1975-1/questions.json": {
+      "url": "v-fb961ab57324590c/games/quizzes/quizz-trua-30-4-1975-1/questions.json",
+      "sha256": "93d8cd95b305afd9e9f9a46b198ffa598891ef44b1ac4d7839bd349e86617a87",
+      "size": 3984
+    },
+    "games/quizzes/quizz-trua-30-4-1975-2/questions.json": {
+      "url": "v-fb961ab57324590c/games/quizzes/quizz-trua-30-4-1975-2/questions.json",
+      "sha256": "fe287091acb13291aa9a43a634e29da6626ed4f06deb467a5e4f75313287cae2",
+      "size": 3687
+    },
+    "games/quizzes/quizz-xuan-loc-1975-1/questions.json": {
+      "url": "v-fb961ab57324590c/games/quizzes/quizz-xuan-loc-1975-1/questions.json",
+      "sha256": "0525739d37d4ec89a7b4db5eeeaa25e91f3d5b914f98b64897743be2010aadcc",
+      "size": 3636
+    },
+    "games/quizzes/quizz-xuan-loc-1975-2/questions.json": {
+      "url": "v-fb961ab57324590c/games/quizzes/quizz-xuan-loc-1975-2/questions.json",
+      "sha256": "cf0baa3ebd9c88f3ca8b849352c8d210d8b1a245de7c0a9b5ee9583e212499e1",
+      "size": 3622
+    },
+    "games/timeline-eras.json": {
+      "url": "v-fb961ab57324590c/games/timeline-eras.json",
+      "sha256": "0078ed15b19a0de8c03d2adb3f0fd3cbb236c623b76a96eabcf0367e6519278c",
+      "size": 11647
+    }
+  }
+}
