@@ -26,7 +26,7 @@ export function AppFrame({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (ready && !user && pathname !== '/login') {
-      const next = encodeURIComponent(pathname);
+      const next = encodeURIComponent(pathname === '/' ? '/dashboard' : pathname);
       router.replace(`/login?next=${next}`);
     }
   }, [pathname, ready, router, user]);

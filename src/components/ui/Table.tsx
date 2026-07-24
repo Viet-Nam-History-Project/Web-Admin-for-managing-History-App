@@ -1,4 +1,4 @@
-import { HTMLAttributes, TableHTMLAttributes } from 'react';
+import { HTMLAttributes, TableHTMLAttributes, TdHTMLAttributes, ThHTMLAttributes } from 'react';
 import { cn } from '@/lib/utils/cn';
 
 export function DataTable({ className, ...props }: TableHTMLAttributes<HTMLTableElement>) {
@@ -19,10 +19,10 @@ export function TableRow({ className, ...props }: HTMLAttributes<HTMLTableRowEle
   return <tr className={cn('border-b border-[var(--border)] last:border-0', className)} {...props} />;
 }
 
-export function TableCell({ className, ...props }: HTMLAttributes<HTMLTableCellElement>) {
+export function TableCell({ className, ...props }: TdHTMLAttributes<HTMLTableCellElement>) {
   return <td className={cn('px-4 py-3 align-middle', className)} {...props} />;
 }
 
-export function TableHeaderCell({ className, ...props }: HTMLAttributes<HTMLTableCellElement>) {
+export function TableHeaderCell({ className, ...props }: ThHTMLAttributes<HTMLTableCellElement>) {
   return <th className={cn('px-4 py-3 font-bold', className)} {...props} />;
 }

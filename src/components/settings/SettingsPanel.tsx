@@ -43,6 +43,7 @@ export function SettingsPanel({ connections }: { connections: { firebase: boolea
     try {
       await adminFetch('/api/admin/settings/profile', { method: 'PATCH', body: JSON.stringify({ displayName }) });
       await firebaseAuth.currentUser?.reload();
+      window.dispatchEvent(new CustomEvent('admin-profile-updated', { detail: { displayName } }));
       setNotice({ tone: 'success', message: 'Đã cập nhật thông tin quản trị viên.' });
       router.refresh();
     } catch (error) {

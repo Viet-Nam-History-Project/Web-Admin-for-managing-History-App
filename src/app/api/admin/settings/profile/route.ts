@@ -10,6 +10,25 @@ const profileSchema = z.object({
   displayName: z.string().trim().min(2, 'Tên hiển thị phải có ít nhất 2 ký tự').max(80),
 });
 
+export async function GET() {
+  try {
+    const actor = await requireAdmin();
+    return NextResponse.json({
+      profile: {
+        uid: actor.uid,
+        email: actor.email,
+        displayName: actor.displayName?.trim() || 'Admin',
+        roles: actor.roles,
+      },
+    });
+  } catch (error) {
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Không đọc được hồ sơ quản trị.' },
+      { status: 401 },
+    );
+  }
+}
+
 export async function PATCH(request: NextRequest) {
   try {
     const actor = await requireAdmin();
