@@ -1,6 +1,7 @@
 import { loadEnvConfig } from '@next/env';
 import { FieldValue, Timestamp, WriteBatch } from 'firebase-admin/firestore';
 import { getAdminDb } from '@/lib/firebase/admin';
+import { collectContentHealth, CONTENT_HEALTH_VERSION } from '@/lib/analytics/contentHealth';
 
 function normalize(value: unknown) {
   return String(value ?? '').trim().toLocaleLowerCase('vi-VN').replace(/\s+/g, ' ');
@@ -58,6 +59,7 @@ async function commitBatches(operations: ((batch: WriteBatch) => void)[]) {
 async function main() {
   loadEnvConfig(process.cwd());
   const db = getAdminDb();
+  const contentHealth = await collectContentHealth(db);
   const [usersSnapshot, nestedReportsSnapshot, queueReportsSnapshot, sessionsSnapshot, forumSnapshot] = await Promise.all([
     db.collection('users').get(),
     db.collectionGroup('reports').get(),
@@ -69,6 +71,7 @@ async function main() {
   const operations: ((batch: WriteBatch) => void)[] = [];
   const userStats = { total: 0, active: 0, banned: 0, activeStreaks: 0, totalXp: 0 };
   const reportStats = { total: 0, pending: 0, reviewing: 0, resolved: 0, dismissed: 0 };
+  let forumVisibilityBackfilled = 0;
   const daily = new Map<string, Record<string, any>>();
 
   for (const document of usersSnapshot.docs) {
@@ -95,6 +98,16 @@ async function main() {
       highestScore: Number(data.highestScore ?? 0),
       currentRank: data.currentRank || rankForXp(totalXP),
       searchTokens: searchTokens(document.id, data.displayName, data.name, data.username, data.email),
+    }, { merge: true }));
+  }
+
+  // Quy ước visibility rõ ràng để app có thể query an toàn bằng
+  // `where('isHidden', '==', false)`. Các bài cũ chưa có trường này được
+  // xem là công khai, trừ khi moderator đã đánh dấu ẩn từ trước.
+  for (const document of forumSnapshot.docs) {
+    if (typeof document.data().isHidden !== 'boolean') forumVisibilityBackfilled += 1;
+    operations.push((batch) => batch.set(document.ref, {
+      isHidden: document.data().isHidden === true,
     }, { merge: true }));
   }
 
@@ -194,12 +207,18 @@ async function main() {
   operations.push((batch) => batch.set(db.doc('admin_stats/dashboard'), {
     users: userStats.total, usersNew7d: 0, activeUsers7d: 0, ...inventory,
     quizSessions: sessionsSnapshot.size, forumComments: inventory.forumReplies,
-    draftContent: 0, missingImage: 0, missingVideo: 0, deletedContent: trash.data().count,
+    draftContent: contentHealth.draftContent,
+    missingImage: contentHealth.missingImage,
+    missingVideo: contentHealth.missingVideo,
+    imageBreakdown: contentHealth.imageBreakdown,
+    contentHealthVersion: CONTENT_HEALTH_VERSION,
+    contentHealthCheckedAt: FieldValue.serverTimestamp(),
+    deletedContent: trash.data().count,
     aiUnansweredQuestions: 0, updatedAt: FieldValue.serverTimestamp(),
   }, { merge: true }));
 
   await commitBatches(operations);
-  console.log(JSON.stringify({ users: userStats, reports: reportStats, analyticsDays: daily.size, inventory, writes: operations.length }, null, 2));
+  console.log(JSON.stringify({ users: userStats, reports: reportStats, forumVisibilityBackfilled, analyticsDays: daily.size, inventory, writes: operations.length }, null, 2));
 }
 
 main().catch((error) => { console.error(error); process.exit(1); });

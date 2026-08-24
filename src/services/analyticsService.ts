@@ -1,5 +1,6 @@
 import { getAdminDb } from '@/lib/firebase/admin';
 import { paths } from '@/lib/firebase/firestorePaths';
+import { collectContentHealth, CONTENT_HEALTH_VERSION } from '@/lib/analytics/contentHealth';
 
 type FirestoreRecord = Record<string, any>;
 
@@ -275,7 +276,7 @@ async function safeGroupCount(collectionId: string) {
 export async function getDashboardStats() {
   const db = getAdminDb();
   const cached = await db.doc('admin_stats/dashboard').get().catch(() => null);
-  if (cached?.exists) {
+  if (cached?.exists && Number(cached.data()?.contentHealthVersion) === CONTENT_HEALTH_VERSION) {
     const value = cached.data() ?? {};
     return {
       users: Number(value.users ?? 0), usersNew7d: Number(value.usersNew7d ?? 0), activeUsers7d: Number(value.activeUsers7d ?? 0),
@@ -284,6 +285,7 @@ export async function getDashboardStats() {
       forumPosts: Number(value.forumPosts ?? 0), forumComments: Number(value.forumComments ?? 0), draftContent: Number(value.draftContent ?? 0),
       missingImage: Number(value.missingImage ?? 0), missingVideo: Number(value.missingVideo ?? 0), deletedContent: Number(value.deletedContent ?? 0),
       aiUnansweredQuestions: Number(value.aiUnansweredQuestions ?? 0),
+      imageBreakdown: value.imageBreakdown ?? {},
     };
   }
   const [users, periods, forumPosts, persons, quizzes, questions, quizSessions, trash] = await Promise.all([
@@ -297,35 +299,9 @@ export async function getDashboardStats() {
     safeCount(paths.trash),
   ]);
 
-  const periodSnap = await db.collection(paths.periods).limit(50).get().catch(() => null);
-  let stages = 0;
-  let events = 0;
-  let missingImage = 0;
-  let draftContent = 0;
-  let missingVideo = 0;
-
-  if (periodSnap) {
-    for (const periodDoc of periodSnap.docs) {
-      const period = periodDoc.data();
-      if (!period.coverMediaRef) missingImage += 1;
-      if (period.status === 'draft') draftContent += 1;
-      const stageSnap = await periodDoc.ref.collection('stages').get();
-      stages += stageSnap.size;
-      for (const stageDoc of stageSnap.docs) {
-        const stage = stageDoc.data();
-        if (!stage.coverMediaRef) missingImage += 1;
-        if (stage.status === 'draft') draftContent += 1;
-        const eventSnap = await stageDoc.ref.collection('events').get();
-        events += eventSnap.size;
-        eventSnap.docs.forEach((eventDoc) => {
-          const event = eventDoc.data();
-          if (!event.coverMediaRef) missingImage += 1;
-          if (event.status === 'draft') draftContent += 1;
-          if (!(event.videos?.length || event.youtubeId)) missingVideo += 1;
-        });
-      }
-    }
-  }
+  const health = await collectContentHealth(db);
+  const stages = await safeGroupCount('stages');
+  const events = await safeGroupCount('events');
 
   return {
     users,
@@ -340,10 +316,11 @@ export async function getDashboardStats() {
     quizSessions,
     forumPosts,
     forumComments: 0,
-    draftContent,
-    missingImage,
-    missingVideo,
+    draftContent: health.draftContent,
+    missingImage: health.missingImage,
+    missingVideo: health.missingVideo,
     deletedContent: trash,
     aiUnansweredQuestions: 0,
+    imageBreakdown: health.imageBreakdown,
   };
 }

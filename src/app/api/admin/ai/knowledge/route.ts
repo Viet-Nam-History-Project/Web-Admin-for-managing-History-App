@@ -34,6 +34,14 @@ function formatUploadError(error: unknown) {
     ].join(' ');
   }
 
+  if (message.includes('Failed to parse body as FormData')) {
+    return [
+      'Dữ liệu upload PDF bị ngắt trước khi máy chủ nhận đủ file.',
+      'Hãy khởi động lại Web Admin để áp dụng giới hạn upload mới rồi thử lại.',
+      'Nếu vẫn lỗi, kiểm tra kích thước file không vượt quá giới hạn hiển thị trên giao diện.',
+    ].join(' ');
+  }
+
   return error instanceof Error ? error.message : 'Upload PDF thất bại.';
 }
 

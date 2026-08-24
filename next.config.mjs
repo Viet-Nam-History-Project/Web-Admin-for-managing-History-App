@@ -13,6 +13,9 @@ const nextConfig = {
     ];
   },
   experimental: {
+    // Middleware mặc định chỉ giữ 10 MB request body. Các PDF của kho AI có thể
+    // tới 200 MB; cộng thêm một ít dung lượng cho multipart metadata/boundary.
+    middlewareClientMaxBodySize: '205mb',
     serverActions: {
       bodySizeLimit: '2mb',
     },

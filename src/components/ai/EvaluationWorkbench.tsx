@@ -37,26 +37,17 @@ interface EvaluationResult {
     required_facets?: string[];
     covered_facets?: string[];
     missing_facets?: string[];
-    facet_coverage?: Record<string, string[]>;
+    semantic_requirements?: Record<string, {
+      label?: string;
+      answerType?: string;
+      required?: boolean;
+    }>;
     answer_structure?: string;
-    comparison_intent?: string;
-    comparison_domain?: string;
-    comparison_subjects?: string[];
-    comparison_object_types?: string[];
-    explicit_facets?: string[];
-    comparison_evidence?: Record<string, Record<string, string[]>>;
-    balanced_facets?: string[];
-    missing_comparison_cells?: string[];
-    answer_requirements?: Record<string, boolean>;
-    evolution_intent?: string;
-    evolution_domain?: string;
-    evolution_subject_type?: string;
-    evolution_periods?: number[][];
-    evolution_period_labels?: string[];
-    evolution_boundary_causes?: string[];
-    evolution_subject_lifetime?: number[];
-    evolution_range_mismatch?: boolean;
-    evolution_range_resolution?: string;
+    requirement_statuses?: Record<string, string>;
+    coverage_gate_outcome?: string;
+    coverage_gate_limitations?: string[];
+    claim_verification_status?: string;
+    unsupported_high_risk_claims?: string[];
   };
   citations: Array<{ chunk_id?: string; source_id: string; source_title: string; page_start: number | null; page_end: number | null; excerpt: string; score: number; facets?: string[] }>;
 }
@@ -231,35 +222,71 @@ function ResultPanel({ result }: { result: EvaluationResult }) {
     <div className="rounded-xl border border-[var(--border)] bg-white/45 p-5 shadow-sm sm:p-6">
       <AiMarkdownAnswer>{result.answer}</AiMarkdownAnswer>
     </div>
-    {retrieval ? <><div className="mt-5 grid gap-3 rounded-lg border border-[var(--border)] bg-black/[0.025] p-4 sm:grid-cols-4"><Diagnostic label="Chiến lược" value={retrieval.strategy} /><Diagnostic label="Ý định" value={retrieval.intent || '—'} /><Diagnostic label="Ứng viên" value={`${retrieval.candidate_count} → ${retrieval.selected_count}`} /><Diagnostic label="Phạm vi" value={[retrieval.scope, retrieval.date_range].filter(Boolean).join(' · ') || '—'} />{retrieval.comparison_intent ? <Diagnostic label="Dạng so sánh" value={comparisonIntentLabel(retrieval.comparison_intent)} /> : null}{retrieval.comparison_domain ? <Diagnostic label="Miền đối tượng" value={comparisonDomainLabel(retrieval.comparison_domain)} /> : null}{retrieval.evolution_intent ? <Diagnostic label="Dạng F9" value={evolutionIntentLabel(retrieval.evolution_intent)} /> : null}{retrieval.evolution_domain ? <Diagnostic label="Miền tiến trình" value={comparisonDomainLabel(retrieval.evolution_domain)} /> : null}{retrieval.answer_structure ? <Diagnostic label="Bố cục" value={retrieval.answer_structure} /> : null}</div>{retrieval.required_facets?.length ? <div className="mt-3 rounded-lg border border-[var(--border)] bg-black/[0.025] p-4"><p className="text-xs font-black uppercase tracking-wider text-stone-500">Độ bao phủ nội dung</p>{retrieval.evolution_periods?.length ? <div className="mt-3"><p className="text-xs font-bold text-stone-600">Các chặng F9 cần cân bằng bằng chứng</p><div className="mt-2 flex flex-wrap gap-2">{retrieval.evolution_periods.map(([start, end]) => <Badge key={`${start}-${end}`} tone="gold">{start}–{end}</Badge>)}</div></div> : null}{retrieval.explicit_facets?.length ? <div className="mt-3"><p className="text-xs font-bold text-stone-600">Người dùng yêu cầu trực tiếp</p><div className="mt-2 flex flex-wrap gap-2">{retrieval.explicit_facets.map((facet) => <Badge key={facet} tone="gold">{facetLabel(facet)}</Badge>)}</div></div> : null}<div className="mt-3 flex flex-wrap gap-2">{retrieval.required_facets.map((facet) => <Badge key={facet} tone={retrieval.missing_facets?.includes(facet) ? 'red' : retrieval.balanced_facets?.includes(facet) ? 'green' : 'neutral'}>{facetLabel(facet)}</Badge>)}</div>{retrieval.missing_facets?.length ? <p className="mt-3 text-xs font-semibold text-flag">Còn thiếu bằng chứng: {retrieval.missing_facets.map(facetLabel).join(', ')}.</p> : null}{retrieval.comparison_evidence && Object.keys(retrieval.comparison_evidence).length ? <details className="mt-4 rounded-lg border border-[var(--border)] bg-white/45 p-3"><summary className="cursor-pointer text-xs font-black uppercase tracking-wider text-stone-600">Ma trận bằng chứng đối tượng × tiêu chí</summary><div className="mt-3 grid gap-2">{Object.entries(retrieval.comparison_evidence).map(([facet, subjects]) => <div key={facet} className="rounded-md border border-[var(--border)] bg-white/60 p-2"><p className="text-xs font-bold text-charcoal">{facetLabel(facet)}</p><div className="mt-1 flex flex-wrap gap-2">{Object.entries(subjects).map(([subject, ids]) => <Badge key={`${facet}-${subject}`} tone={ids.length ? 'green' : 'red'}>{subject}: {ids.length} đoạn</Badge>)}</div></div>)}</div></details> : null}</div> : null}</> : null}
-    {retrieval?.evolution_period_labels?.length ? <EvolutionPeriodDiagnostics retrieval={retrieval} /> : null}
-    <div className="mt-6 border-t border-[var(--border)] pt-5"><p className="text-xs font-black uppercase tracking-wider text-stone-500">Nguồn truy xuất</p><div className="mt-3 grid gap-3">{result.citations.map((citation, index) => <div key={`${citation.source_id}-${citation.chunk_id ?? index}`} className="rounded-lg border border-[var(--border)] bg-white/55 p-3"><div className="flex items-center justify-between gap-3"><p className="font-bold text-charcoal">[{index + 1}] {citation.source_title}</p><Badge tone="neutral">Trang {citation.page_start ?? '—'}{citation.page_end && citation.page_end !== citation.page_start ? `-${citation.page_end}` : ''} · {Math.round(citation.score * 100)}%</Badge></div>{citation.facets?.length ? <div className="mt-2 flex flex-wrap gap-1">{citation.facets.map((facet) => <Badge key={facet} tone="gold">{facet}</Badge>)}</div> : null}<p className="mt-2 text-xs leading-5 text-stone-600">{citation.excerpt}</p></div>)}</div></div>
+    {retrieval ? <>
+      <div className="mt-5 grid gap-3 rounded-lg border border-[var(--border)] bg-black/[0.025] p-4 sm:grid-cols-5">
+        <Diagnostic label="Pipeline" value="Planner → Evidence → Answer → Verify" />
+        <Diagnostic label="Chế độ" value={modeLabel(retrieval.intent)} />
+        <Diagnostic label="Ứng viên" value={`${retrieval.candidate_count} → ${retrieval.selected_count}`} />
+        <Diagnostic label="Phạm vi" value={[retrieval.scope, retrieval.date_range].filter(Boolean).join(' · ') || '—'} />
+        <Diagnostic label="Bố cục" value={retrieval.answer_structure || 'direct'} />
+      </div>
+      {retrieval.required_facets?.length ? <div className="mt-3 rounded-lg border border-[var(--border)] bg-black/[0.025] p-4">
+        <p className="text-xs font-black uppercase tracking-wider text-stone-500">Độ bao phủ yêu cầu</p>
+        <div className="mt-3 grid gap-2 sm:grid-cols-2">
+          {retrieval.required_facets.map((requirementId) => {
+            const supported = retrieval.requirement_statuses?.[requirementId] === 'supported';
+            const label = retrieval.semantic_requirements?.[requirementId]?.label ?? requirementId;
+            return <div key={requirementId} className="flex min-w-0 items-start justify-between gap-3 rounded-md border border-[var(--border)] bg-white/60 p-3">
+              <p className="min-w-0 break-words text-sm font-semibold text-charcoal">{label}</p>
+              <Badge tone={supported ? 'green' : 'red'}>{supported ? 'Đã có' : 'Còn thiếu'}</Badge>
+            </div>;
+          })}
+        </div>
+      </div> : null}
+    </> : null}
+    <div className="mt-6 border-t border-[var(--border)] pt-5">
+      <p className="text-xs font-black uppercase tracking-wider text-stone-500">Nguồn truy xuất</p>
+      <div className="mt-3 grid gap-3">
+        {result.citations.length ? result.citations.map((citation, index) => <div key={`${citation.source_id}-${citation.chunk_id ?? index}`} className="rounded-lg border border-[var(--border)] bg-white/55 p-3">
+          <div className="flex items-center justify-between gap-3">
+            <p className="font-bold text-charcoal">[{index + 1}] {citation.source_title}</p>
+            <Badge tone="neutral">Trang {citation.page_start ?? '—'}{citation.page_end && citation.page_end !== citation.page_start ? `-${citation.page_end}` : ''} · {Math.round(citation.score * 100)}%</Badge>
+          </div>
+          {citation.facets?.length ? <div className="mt-2 flex flex-wrap gap-1">{citation.facets.map((facet) => <Badge key={facet} tone="gold">{facet}</Badge>)}</div> : null}
+          <p className="mt-2 text-xs leading-5 text-stone-600">{citation.excerpt}</p>
+        </div>) : <p className="text-sm text-stone-500">Không có nguồn nào được chọn.</p>}
+      </div>
+    </div>
+    {retrieval ? <ValidationPanel retrieval={retrieval} /> : null}
   </div>;
 }
 
-function EvolutionPeriodDiagnostics({
+function ValidationPanel({
   retrieval,
 }: {
   retrieval: NonNullable<EvaluationResult['retrieval']>;
 }) {
-  return <details className="mt-4 rounded-lg border border-[var(--border)] bg-white/45 p-4">
-    <summary className="cursor-pointer text-xs font-black uppercase tracking-wider text-stone-600">
-      Period plan động F9
-    </summary>
-    <div className="mt-3 grid gap-2">
-      {(retrieval.evolution_periods ?? []).map(([start, end], index) => <div key={`${start}-${end}-${index}`} className="rounded-md border border-[var(--border)] bg-white/65 p-3">
-        <p className="text-sm font-bold text-charcoal">{start}–{end}: {retrieval.evolution_period_labels?.[index] ?? 'Chưa đặt tên'}</p>
-        {retrieval.evolution_boundary_causes?.[index] ? <p className="mt-1 text-xs leading-5 text-stone-600">Bước ngoặt: {retrieval.evolution_boundary_causes[index]}</p> : null}
-      </div>)}
+  const warnings = [...new Set([
+    ...(retrieval.coverage_gate_limitations ?? []),
+    ...(retrieval.unsupported_high_risk_claims ?? []).map((claim) => `Claim chưa được giữ lại: ${claim}`),
+  ].filter(Boolean))];
+  const passed = warnings.length === 0
+    && !['fail', 'blocked'].includes(retrieval.coverage_gate_outcome ?? '')
+    && !['failed', 'insufficient'].includes(retrieval.claim_verification_status ?? '');
+
+  return <div className="mt-6 border-t border-[var(--border)] pt-5">
+    <div className="flex flex-wrap items-center justify-between gap-2">
+      <p className="text-xs font-black uppercase tracking-wider text-stone-500">Validate</p>
+      <Badge tone={passed ? 'green' : 'gold'}>{passed ? 'Đạt kiểm định' : 'Cần xem lại'}</Badge>
     </div>
-    {retrieval.evolution_subject_lifetime?.length === 2 ? <p className="mt-3 text-xs font-semibold text-stone-600">Vòng đời đối tượng: {retrieval.evolution_subject_lifetime[0]}–{retrieval.evolution_subject_lifetime[1]}</p> : null}
-    {retrieval.evolution_range_mismatch ? <p className="mt-2 text-xs font-semibold text-amber-800">Khoảng hỏi vượt vòng đời đối tượng: {retrieval.evolution_range_resolution || 'giải thích quá trình kế tiếp'}.</p> : null}
-  </details>;
+    {warnings.length ? <ul className="mt-3 grid gap-2 rounded-lg border border-amber-200 bg-amber-50/60 p-4 text-sm leading-6 text-amber-950">
+      {warnings.map((warning) => <li key={warning} className="flex gap-2"><span aria-hidden>•</span><span>{warning}</span></li>)}
+    </ul> : <p className="mt-3 flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50/60 p-4 text-sm font-semibold text-emerald-800">
+      <CheckCircle2 className="h-4 w-4" /> Các khẳng định được giữ lại đã qua kiểm tra với nguồn truy xuất.
+    </p>}
+  </div>;
 }
 
-function Diagnostic({ label, value }: { label: string; value: string }) { return <div><p className="text-[11px] font-black uppercase text-stone-500">{label}</p><p className="mt-1 text-sm font-bold text-charcoal">{value}</p></div>; }
+function Diagnostic({ label, value }: { label: string; value: string }) { return <div className="min-w-0"><p className="text-[11px] font-black uppercase text-stone-500">{label}</p><p className="mt-1 break-words text-sm font-bold text-charcoal [overflow-wrap:anywhere]">{value}</p></div>; }
 function verdictLabel(value?: EvaluationResult['verdict']) { return value === 'pass' ? 'Đạt' : value === 'partial' ? 'Cần sửa nhỏ' : value === 'fail' ? 'Không đạt' : 'Chờ review'; }
-function facetLabel(value: string) { return ({ political_administrative: 'Chính trị & hành chính', economic_taxation: 'Kinh tế & thuế khóa', culture_education: 'Văn hóa & giáo dục', social_transformation: 'Xã hội', objectives_consequences: 'Mục đích & hậu quả', historical_evolution: 'Thay đổi theo thời gian', governance_methods: 'Đàn áp, kiểm soát & nhượng bộ', wartime_mobilization: 'Huy động thời chiến', comparison_context: 'Thời gian & bối cảnh', organizer: 'Người tổ chức', scale_investment: 'Quy mô & vốn đầu tư', agriculture: 'Nông nghiệp', industry: 'Công nghiệp', commerce: 'Thương nghiệp', transport: 'Giao thông', progress: 'Diễn biến', forces: 'Lực lượng', leadership: 'Lãnh đạo', result: 'Kết quả', significance: 'Ý nghĩa', cause: 'Nguyên nhân', geographic_scope: 'Phạm vi & địa bàn', strategy_methods: 'Âm mưu & biện pháp', scale_intensity: 'Quy mô & mức độ', representative_events: 'Sự kiện tiêu biểu', participants: 'Các bên tham gia', agreement_content: 'Nội dung điều khoản', implementation_mechanism: 'Cơ chế thực hiện', limitations: 'Hạn chế', role_contribution: 'Vai trò & đóng góp', ideology_goals: 'Tư tưởng & con đường', organization_structure: 'Cơ cấu tổ chức', source_perspective: 'Quan điểm nguồn', continuity_change: 'Tiếp nối & thay đổi', resources_logistics: 'Nguồn lực & hậu cần' } as Record<string, string>)[value] ?? value; }
-function comparisonIntentLabel(value: string) { return ({ similarities_differences: 'Giống và khác', main_similarity: 'Điểm giống chủ yếu', main_difference: 'Khác biệt chính', extent_comparison: 'So sánh mức độ', cause_comparison: 'So sánh nguyên nhân', consequence_comparison: 'So sánh kết quả/tác động', effectiveness_comparison: 'Đánh giá hiệu quả', significance_comparison: 'So sánh ý nghĩa', continuity_change: 'Tiếp nối và thay đổi', role_comparison: 'So sánh vai trò', interpretation_comparison: 'So sánh quan điểm nguồn', judgement: 'Đưa ra nhận định', focused_facets: 'Tiêu chí được chỉ định' } as Record<string, string>)[value] ?? value; }
-function comparisonDomainLabel(value: string) { return ({ economic_policy: 'Chính sách kinh tế', military_strategy: 'Chiến lược quân sự', military_campaign: 'Chiến dịch/trận đánh', diplomatic_agreement: 'Ngoại giao/hiệp định', historical_person: 'Nhân vật lịch sử', movement_revolution: 'Phong trào/cách mạng', political_administration: 'Chính trị/hành chính', state_dynasty: 'Nhà nước/triều đại', multi_domain: 'Tiến trình đa lĩnh vực', source_interpretation: 'Tư liệu/quan điểm', historical_event: 'Sự kiện lịch sử' } as Record<string, string>)[value] ?? value; }
-function evolutionIntentLabel(value: string) { return ({ evolution_over_time: 'Phát triển theo thời gian', continuity_and_change: 'Tiếp nối và thay đổi', turning_points: 'Các bước ngoặt', extent_of_change: 'Mức độ thay đổi', cause_of_change: 'Nguyên nhân thay đổi', before_after: 'Trước và sau mốc', short_long_term: 'Ngắn hạn và dài hạn', acceleration_slowdown: 'Tốc độ thay đổi', reversal: 'Đảo chiều', inheritance_development: 'Kế thừa và phát triển', periodization: 'Phân kỳ', decisive_change: 'Thay đổi quyết định' } as Record<string, string>)[value] ?? value; }
+function modeLabel(value: string) { return ({ direct_fact: 'Tra cứu trực tiếp', explanatory_rag: 'Giải thích', comparison: 'So sánh', timeline_evolution: 'Tiến trình', graph_multihop: 'Liên kết đa bước', reliability_and_conversation: 'Hội thoại/làm rõ' } as Record<string, string>)[value] ?? value; }

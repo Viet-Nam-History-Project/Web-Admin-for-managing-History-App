@@ -2,7 +2,7 @@ import { FieldValue, Timestamp } from 'firebase-admin/firestore';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { requireAdmin } from '@/lib/auth/requireAdmin';
-import { fetchAiAdmin, getAiBackendUrl, getRequiredRagRevision } from '@/lib/ai/backend';
+import { fetchAiAdmin, getAiBackendUrl } from '@/lib/ai/backend';
 import { getAdminDb } from '@/lib/firebase/admin';
 import { paths } from '@/lib/firebase/firestorePaths';
 
@@ -88,16 +88,28 @@ export async function POST(request: NextRequest) {
     const actor = await requireAdmin(['super_admin', 'content_admin', 'viewer']);
     const payload = requestSchema.parse(await request.json());
     const backendUrl = getAiBackendUrl();
-    const requiredRevision = getRequiredRagRevision();
     const healthResponse = await fetch(`${backendUrl}/health/revision`, {
       cache: 'no-store',
       signal: AbortSignal.timeout(10_000),
     });
     const health = await healthResponse.json().catch(() => ({}));
-    if (!healthResponse.ok || health.rag_revision !== requiredRevision) {
+    if (
+      !healthResponse.ok
+      || typeof health.rag_revision !== 'string'
+      || health.rag_revision.trim().length === 0
+      || typeof health.source_rag_revision !== 'string'
+      || typeof health.restart_required !== 'boolean'
+    ) {
       throw new Error(
-        `FastAPI đang chạy pipeline cũ (${health.rag_revision ?? 'không xác định'}). `
-        + `Hãy hoàn tất hoặc tạm dừng Index rồi restart backend để nạp ${requiredRevision}.`,
+        'FastAPI chưa hỗ trợ cơ chế đồng bộ revision tự động. '
+        + 'Hãy restart backend một lần để nạp phiên bản hiện tại.',
+      );
+    }
+    if (health.restart_required) {
+      throw new Error(
+        `FastAPI cần restart để đồng bộ revision `
+        + `(${health.rag_revision} → ${health.source_rag_revision}). `
+        + 'Nếu đang Index, hãy tạm dừng hoặc chờ hoàn tất trước khi restart.',
       );
     }
     // Route Web Admin đã được requireAdmin() xác thực bằng Firebase Bearer
@@ -120,6 +132,7 @@ export async function POST(request: NextRequest) {
       citations: result.citations ?? [],
       confidence: Number(result.confidence ?? 0),
       retrieval: serializeRetrievalForFirestore(result.retrieval),
+      ragRevision: health.rag_revision,
       reviewerId: actor.uid,
       reviewerEmail: actor.email,
       verdict: 'needs_review',
