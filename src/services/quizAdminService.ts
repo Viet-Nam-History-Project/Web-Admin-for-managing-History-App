@@ -1,4 +1,4 @@
-import { FieldValue, Timestamp } from 'firebase-admin/firestore';
+import { FieldValue } from 'firebase-admin/firestore';
 import { getAdminDb } from '@/lib/firebase/admin';
 import { AdminActor } from '@/lib/auth/requireAdmin';
 import { writeAuditLog } from '@/lib/audit/auditLogger';
@@ -15,17 +15,32 @@ import {
 
 export const DEFAULT_QUIZ_GAME_ID = 'quiz-lich-su-viet-nam';
 
+function toIsoDate(value: unknown): string | null {
+  if (!value) return null;
+  if (typeof value === 'object' && value && 'toDate' in value && typeof (value as { toDate?: () => Date }).toDate === 'function') {
+    return (value as { toDate: () => Date }).toDate().toISOString();
+  }
+  if (typeof value === 'object' && value && '_seconds' in value) {
+    return new Date((value as { _seconds: number })._seconds * 1000).toISOString();
+  }
+  if (value instanceof Date) {
+    return value.toISOString();
+  }
+  if (typeof value === 'string') return value;
+  return null;
+}
+
 export interface AdminQuizItem extends QuizPayload {
   id: string;
   questionCount: number;
-  updated_at?: Timestamp | unknown;
-  createdAt?: Timestamp | unknown;
-  updatedAt?: Timestamp | unknown;
+  updated_at?: string | null;
+  createdAt?: string | null;
+  updatedAt?: string | null;
 }
 
 export interface AdminQuestionItem extends QuestionPayload {
   id: string;
-  updated_at?: Timestamp | unknown;
+  updated_at?: string | null;
 }
 
 const quizColRef = () => getAdminDb().collection(`games/${DEFAULT_QUIZ_GAME_ID}/quizzes`);
@@ -57,9 +72,9 @@ export const quizAdminService = {
           maxPlayers: Number((data.settings as { maxPlayers?: number })?.maxPlayers ?? 1),
         },
         eventID: data.eventID as AdminQuizItem['eventID'],
-        updated_at: data.updated_at,
-        createdAt: data.createdAt,
-        updatedAt: data.updatedAt,
+        updated_at: toIsoDate(data.updated_at),
+        createdAt: toIsoDate(data.createdAt),
+        updatedAt: toIsoDate(data.updatedAt),
       });
     }
 
@@ -87,9 +102,9 @@ export const quizAdminService = {
         maxPlayers: Number((data.settings as { maxPlayers?: number })?.maxPlayers ?? 1),
       },
       eventID: data.eventID as AdminQuizItem['eventID'],
-      updated_at: data.updated_at,
-      createdAt: data.createdAt,
-      updatedAt: data.updatedAt,
+      updated_at: toIsoDate(data.updated_at),
+      createdAt: toIsoDate(data.createdAt),
+      updatedAt: toIsoDate(data.updatedAt),
     };
   },
 
@@ -204,7 +219,7 @@ export const quizAdminService = {
         correctAnswer: Number(data.correctAnswer ?? 0),
         explanation: String(data.explanation ?? ''),
         imageUrl: data.imageUrl ? String(data.imageUrl) : null,
-        updated_at: data.updated_at,
+        updated_at: toIsoDate(data.updated_at),
       };
     });
   },
@@ -221,7 +236,7 @@ export const quizAdminService = {
       correctAnswer: Number(data.correctAnswer ?? 0),
       explanation: String(data.explanation ?? ''),
       imageUrl: data.imageUrl ? String(data.imageUrl) : null,
-      updated_at: data.updated_at,
+      updated_at: toIsoDate(data.updated_at),
     };
   },
 
