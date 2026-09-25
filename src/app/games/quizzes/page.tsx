@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Plus, Trash2, Gamepad2 } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 import { AdminShell } from '@/components/layout/AdminShell';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/Button';

@@ -5,7 +5,7 @@ import { AdminShell } from '@/components/layout/AdminShell';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
-import { Card, CardTitle } from '@/components/ui/Card';
+import { Card } from '@/components/ui/Card';
 import { EntityActionButton } from '@/components/admin/EntityActionButton';
 import { QuizDetailClient } from '@/components/admin/QuizDetailClient';
 import { quizAdminService } from '@/services/quizAdminService';

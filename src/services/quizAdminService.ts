@@ -5,9 +5,7 @@ import { writeAuditLog } from '@/lib/audit/auditLogger';
 import { trashAdminService } from '@/services/trashAdminService';
 import {
   QuizPayload,
-  QuizUpdatePayload,
   QuestionPayload,
-  QuestionUpdatePayload,
   quizSchema,
   quizUpdateSchema,
   questionSchema,
