@@ -294,7 +294,7 @@ export const quizAdminService = {
 
     await writeAuditLog({
       actor,
-      action: 'delete',
+      action: 'permanent_delete',
       entityType: 'question',
       entityPath: `games/${DEFAULT_QUIZ_GAME_ID}/quizzes/${quizSlug}/questions/${questionId}`,
       entityTitle: String(before.data()?.question || questionId),
