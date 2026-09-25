@@ -1,4 +1,4 @@
-import { Crown, Flame, Sparkles, Trophy, Users } from 'lucide-react';
+import { Crown, Flame, Sparkles, Trophy } from 'lucide-react';
 import { AdminShell } from '@/components/layout/AdminShell';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { StatCard } from '@/components/ui/StatCard';

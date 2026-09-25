@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { Calendar, Edit3, History, Image as ImageIcon, MapPin } from 'lucide-react';
+import { Calendar, Edit3, History, Image as ImageIcon } from 'lucide-react';
 import { AdminShell } from '@/components/layout/AdminShell';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/Button';

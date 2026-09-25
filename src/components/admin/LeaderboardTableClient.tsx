@@ -3,12 +3,9 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import {
-  Award,
   Crown,
   ExternalLink,
   Flame,
-  Gamepad2,
-  Medal,
   Search,
   Sparkles,
   Trophy,
