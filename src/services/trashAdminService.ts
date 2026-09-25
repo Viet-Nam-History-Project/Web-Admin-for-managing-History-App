@@ -15,6 +15,7 @@ export type TrashEntityType =
   | 'museum'
   | 'quiz'
   | 'question'
+  | 'timeline_era'
   | 'forum_post';
 
 export interface TrashItem {
