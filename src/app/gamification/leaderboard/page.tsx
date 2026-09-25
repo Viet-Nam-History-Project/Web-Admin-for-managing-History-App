@@ -53,6 +53,7 @@ export default async function LeaderboardPage() {
         <StatCard
           title="Quán quân hiện tại"
           value={top1 ? top1.displayName : 'Chưa có'}
+          valueClassName="text-xl sm:text-2xl"
           hint={top1 ? `${top1.totalXP.toLocaleString('vi-VN')} XP` : undefined}
           icon={Crown}
         />
