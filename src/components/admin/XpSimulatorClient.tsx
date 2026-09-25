@@ -188,9 +188,9 @@ export function XpSimulatorClient() {
           <div>
             <div className="flex items-center justify-between border-b border-stone-200/80 pb-3">
               <span className="text-xs font-bold uppercase tracking-wider text-stone-500">
-                Bảng phân rã điểm XP
+                Chi tiết từng khoản điểm
               </span>
-              <span className="font-mono text-xs text-stone-400">xpService.ts</span>
+              <span className="text-xs text-stone-400 font-medium">Phiên hiện tại</span>
             </div>
 
             <div className="mt-4 grid gap-3">
@@ -198,7 +198,7 @@ export function XpSimulatorClient() {
               <div className="flex items-center justify-between rounded-xl bg-stone-50 p-3 text-sm">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-stone-500" />
-                  <span className="font-medium text-charcoal">Điểm cơ bản (Base XP)</span>
+                  <span className="font-medium text-charcoal">Điểm cơ bản (số câu đúng)</span>
                 </div>
                 <span className="font-mono font-black text-stone-800">
                   +{baseXP} XP
@@ -249,9 +249,9 @@ export function XpSimulatorClient() {
 
               {/* Subtotal */}
               <div className="flex items-center justify-between px-3 text-xs text-stone-500">
-                <span>Tổng trước hệ số:</span>
+                <span>Tổng điểm trước khi nhân chuỗi:</span>
                 <span className="font-mono font-bold">
-                  ({baseXP} + {accuracyBonus} + {speedBonus}) = {rawSubtotal} XP
+                  {baseXP} + {accuracyBonus} + {speedBonus} = {rawSubtotal} XP
                 </span>
               </div>
 
@@ -271,10 +271,10 @@ export function XpSimulatorClient() {
                         : 'text-stone-400'
                     }`}
                   />
-                  <span>Hệ số Streak (&ge; 3 ngày)</span>
+                  <span>Hệ số nhân chuỗi ngày (&ge; 3 ngày)</span>
                 </div>
                 <span className="font-mono font-black text-orange-600">
-                  &times; {streakMultiplier}
+                  &times; {streakMultiplier} lần
                 </span>
               </div>
             </div>
@@ -285,10 +285,10 @@ export function XpSimulatorClient() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-bold uppercase tracking-wider text-amber-200">
-                  Tổng XP nhận được
+                  Tổng XP người chơi nhận được
                 </p>
                 <p className="text-xs text-white/80 mt-0.5">
-                  Math.ceil({rawSubtotal} &times; {streakMultiplier})
+                  {rawSubtotal} XP &times; {streakMultiplier} {streakMultiplier > 1 ? '(nhân chuỗi)' : ''}
                 </p>
               </div>
 

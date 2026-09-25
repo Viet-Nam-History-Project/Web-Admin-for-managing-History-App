@@ -1,8 +1,8 @@
 import {
   CheckCircle2,
   Clock,
-  Code2,
   Flame,
+  Lightbulb,
   Sparkles,
 } from 'lucide-react';
 import { AdminShell } from '@/components/layout/AdminShell';
@@ -41,8 +41,16 @@ export default async function XpRulesPage() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-stone-200 bg-white px-4 py-2.5 font-mono text-xs font-black text-bronze shadow-sm sm:text-sm">
-            Total XP = Math.ceil((Base XP + Accuracy Bonus + Speed Bonus) &times; Streak Multiplier)
+          <div className="rounded-2xl border border-stone-200/90 bg-white px-5 py-3 shadow-sm text-center">
+            <div className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-1">
+              Công thức tổng quát
+            </div>
+            <div className="text-sm font-black text-bronze sm:text-base">
+              Tổng XP = (Điểm cơ bản + Thưởng chính xác + Thưởng tốc độ) &times; Hệ số chuỗi ngày
+            </div>
+            <div className="text-[11px] text-stone-500 mt-0.5">
+              (Kết quả được làm tròn lên số nguyên gần nhất nếu có số lẻ)
+            </div>
           </div>
         </div>
       </div>
@@ -50,58 +58,66 @@ export default async function XpRulesPage() {
       {/* 4 Pillars of the XP System */}
       <div className="mb-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {/* Base XP */}
-        <Card className="border-[var(--border)] p-5">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-stone-100 text-stone-700">
-            <CheckCircle2 className="h-5 w-5" />
+        <Card className="border-[var(--border)] p-5 flex flex-col justify-between">
+          <div>
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-stone-100 text-stone-700">
+              <CheckCircle2 className="h-5 w-5" />
+            </div>
+            <h3 className="mt-3 text-base font-black text-charcoal">1. Điểm cơ bản</h3>
+            <p className="mt-1 text-xs leading-relaxed text-stone-600">
+              Mỗi câu trả lời đúng được cộng 1 điểm cơ sở:
+            </p>
           </div>
-          <h3 className="mt-3 text-base font-black text-charcoal">1. Điểm cơ bản (Base XP)</h3>
-          <p className="mt-1 text-xs leading-relaxed text-stone-600">
-            Mỗi câu trả lời đúng được quy đổi trực tiếp thành điểm cơ sở:
-          </p>
-          <div className="mt-3 rounded-lg bg-stone-50 p-2 font-mono text-xs font-bold text-stone-800">
-            Base XP = max(0, score)
+          <div className="mt-4 rounded-xl bg-stone-50 p-2.5 text-center text-xs font-bold text-stone-800 border border-stone-200/70">
+            Số câu trả lời đúng (tối thiểu 0 điểm)
           </div>
         </Card>
 
         {/* Accuracy Bonus */}
-        <Card className="border-[var(--border)] p-5">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200/60">
-            <Sparkles className="h-5 w-5 text-emerald-600" />
+        <Card className="border-[var(--border)] p-5 flex flex-col justify-between">
+          <div>
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+              <Sparkles className="h-5 w-5 text-emerald-600" />
+            </div>
+            <h3 className="mt-3 text-base font-black text-charcoal">2. Thưởng độ chính xác</h3>
+            <p className="mt-1 text-xs leading-relaxed text-stone-600">
+              Khi người học đạt tỷ lệ đúng từ 80% câu hỏi trở lên:
+            </p>
           </div>
-          <h3 className="mt-3 text-base font-black text-charcoal">2. Thưởng chính xác</h3>
-          <p className="mt-1 text-xs leading-relaxed text-stone-600">
-            Khi người học trả lời đúng từ 80% câu hỏi trở lên:
-          </p>
-          <div className="mt-3 rounded-lg bg-emerald-50/80 p-2 font-mono text-xs font-bold text-emerald-800 border border-emerald-200/50">
-            Accuracy &ge; 80% &rarr; +20 XP
+          <div className="mt-4 rounded-xl bg-emerald-50 p-2.5 text-center text-xs font-bold text-emerald-800 border border-emerald-200/80">
+            Độ chính xác &ge; 80% &rarr; Cộng 20 XP
           </div>
         </Card>
 
         {/* Speed Bonus */}
-        <Card className="border-[var(--border)] p-5">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 text-amber-700 border border-amber-200/60">
-            <Clock className="h-5 w-5 text-amber-600" />
+        <Card className="border-[var(--border)] p-5 flex flex-col justify-between">
+          <div>
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 text-amber-700 border border-amber-200/60">
+              <Clock className="h-5 w-5 text-amber-600" />
+            </div>
+            <h3 className="mt-3 text-base font-black text-charcoal">3. Thưởng tốc độ</h3>
+            <p className="mt-1 text-xs leading-relaxed text-stone-600">
+              Hoàn thành phiên chơi dưới 30 giây và có ít nhất 1 câu đúng:
+            </p>
           </div>
-          <h3 className="mt-3 text-base font-black text-charcoal">3. Thưởng tốc độ</h3>
-          <p className="mt-1 text-xs leading-relaxed text-stone-600">
-            Hoàn thành toàn bộ câu hỏi trong thời gian ngắn và có điểm:
-          </p>
-          <div className="mt-3 rounded-lg bg-amber-50/80 p-2 font-mono text-xs font-bold text-amber-800 border border-amber-200/50">
-            Time &lt; 30s &rarr; +10 XP
+          <div className="mt-4 rounded-xl bg-amber-50 p-2.5 text-center text-xs font-bold text-amber-800 border border-amber-200/80">
+            Thời gian &lt; 30 giây &rarr; Cộng 10 XP
           </div>
         </Card>
 
         {/* Streak Multiplier */}
-        <Card className="border-[var(--border)] p-5">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 text-orange-700 border border-orange-200/60">
-            <Flame className="h-5 w-5 fill-orange-500 text-orange-500" />
+        <Card className="border-[var(--border)] p-5 flex flex-col justify-between">
+          <div>
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 text-orange-700 border border-orange-200/60">
+              <Flame className="h-5 w-5 fill-orange-500 text-orange-500" />
+            </div>
+            <h3 className="mt-3 text-base font-black text-charcoal">4. Nhân hệ số chuỗi</h3>
+            <p className="mt-1 text-xs leading-relaxed text-stone-600">
+              Duy trì chuỗi học tập liên tục từ 3 ngày trở lên:
+            </p>
           </div>
-          <h3 className="mt-3 text-base font-black text-charcoal">4. Nhân chuỗi ngày</h3>
-          <p className="mt-1 text-xs leading-relaxed text-stone-600">
-            Duy trì chuỗi học liên tục từ 3 ngày trở lên sẽ được kích hoạt nhân:
-          </p>
-          <div className="mt-3 rounded-lg bg-orange-50/80 p-2 font-mono text-xs font-bold text-orange-800 border border-orange-200/50">
-            Streak &ge; 3 ngày &rarr; &times; 1.5
+          <div className="mt-4 rounded-xl bg-orange-50 p-2.5 text-center text-xs font-bold text-orange-800 border border-orange-200/80">
+            Chuỗi &ge; 3 ngày &rarr; Nhân 1.5 lần
           </div>
         </Card>
       </div>
@@ -111,28 +127,19 @@ export default async function XpRulesPage() {
         <XpSimulatorClient />
       </div>
 
-      {/* Code reference card */}
-      <div className="rounded-2xl border border-stone-200/80 bg-stone-900 p-5 text-white shadow-sm">
-        <div className="flex items-center gap-2 text-stone-400 text-xs font-mono mb-3">
-          <Code2 className="h-4 w-4" />
-          <span>VietNamHistoryNativeReactApp / src / services / xpService.ts</span>
+      {/* Guidance info card */}
+      <div className="rounded-2xl border border-[var(--border)] bg-white/80 p-5 shadow-sm">
+        <div className="flex items-start gap-3">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-bronze">
+            <Lightbulb className="h-5 w-5" />
+          </div>
+          <div className="text-sm text-stone-600 leading-relaxed">
+            <h4 className="font-bold text-charcoal mb-1">Cơ chế tự động hóa trên ứng dụng di động</h4>
+            <p>
+              Khi người dùng kết thúc bất kỳ lượt chơi trắc nghiệm hay thử thách niên đại nào, ứng dụng di động sẽ tự động áp dụng công thức trên để tính ra số XP thưởng, cộng dồn vào tổng điểm (<code className="rounded bg-stone-100 px-1.5 py-0.5 font-mono text-xs text-stone-700">totalXP</code>), kiểm tra điều kiện thăng hạng (Rank) và tự động mở khóa các huy hiệu (Badges) tương ứng.
+            </p>
+          </div>
         </div>
-        <pre className="overflow-x-auto text-xs font-mono text-stone-200 leading-relaxed">
-{`export function calculateXP(params: XPCalculationParams): XPBreakdown {
-  const { score, correctAnswers, totalQuestions, timeTaken, currentStreak } = params;
-
-  const baseXP = Math.max(0, score);
-  const accuracy = totalQuestions > 0 ? correctAnswers / totalQuestions : 0;
-  const accuracyBonus = accuracy >= 0.8 ? 20 : 0;
-  const speedBonus = timeTaken < 30 ? 10 : 0;
-  const streakMultiplier = currentStreak >= 3 ? 1.5 : 1;
-
-  const rawTotal = (baseXP + accuracyBonus + speedBonus) * streakMultiplier;
-  const totalXP = Math.ceil(rawTotal);
-
-  return { baseXP, accuracyBonus, speedBonus, streakMultiplier, totalXP };
-}`}
-        </pre>
       </div>
     </AdminShell>
   );
