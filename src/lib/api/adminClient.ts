@@ -26,15 +26,32 @@ async function requestWithToken(url: string, init: RequestInit, forceRefresh = f
   });
 }
 
+function describeTransportError(error: unknown) {
+  if (error instanceof Error && error.name === 'AbortError') {
+    return 'Yêu cầu tới Web Admin đã bị hủy. Vui lòng thử lại.';
+  }
+  if (
+    error instanceof TypeError
+    || (error instanceof Error && /failed to fetch|fetch failed/i.test(error.message))
+  ) {
+    return 'Mất kết nối tới Web Admin. Hãy kiểm tra Web đang chạy ở cổng 3000, tải lại trang rồi thử lại.';
+  }
+  return error instanceof Error ? error.message : 'Không thể kết nối tới Web Admin.';
+}
+
 export async function adminFetch<T>(url: string, init: RequestInit = {}): Promise<T> {
-  let response = await requestWithToken(url, init);
+  try {
+    let response = await requestWithToken(url, init);
 
-  // Token Firebase hết hạn sẽ được refresh và thử lại đúng một lần.
-  if (response.status === 401) response = await requestWithToken(url, init, true);
+    // Token Firebase hết hạn sẽ được refresh và thử lại đúng một lần.
+    if (response.status === 401) response = await requestWithToken(url, init, true);
 
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(data.error ?? 'Thao tác thất bại.');
-  return data as T;
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.error ?? 'Thao tác thất bại.');
+    return data as T;
+  } catch (error) {
+    throw new Error(describeTransportError(error), { cause: error });
+  }
 }
 
 export async function adminDownload(

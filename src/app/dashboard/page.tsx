@@ -41,6 +41,7 @@ export default async function DashboardPage() {
     draftContent: 0,
     missingImage: 0,
     missingVideo: 0,
+    imageBreakdown: {},
     aiUnansweredQuestions: 0,
     questions: 0,
     deletedContent: 0,
@@ -76,7 +77,7 @@ export default async function DashboardPage() {
         <StatCard title="Forum posts" value={data.forumPosts} icon={MessageSquare} hint={`${data.forumComments} comments`} />
         <StatCard title="Draft content" value={data.draftContent} icon={FileWarning} />
         <StatCard title="Trong thùng rác" value={data.deletedContent} icon={FileWarning} />
-        <StatCard title="Thiếu ảnh" value={data.missingImage} icon={FileWarning} />
+        <StatCard title="Thiếu ảnh" value={data.missingImage} icon={FileWarning} hint={imageBreakdownLabel(data.imageBreakdown)} />
         <StatCard title="Thiếu video" value={data.missingVideo} icon={FileWarning} />
         <StatCard title="AI unanswered" value={data.aiUnansweredQuestions} icon={Bot} />
       </div>
@@ -88,13 +89,19 @@ export default async function DashboardPage() {
         </Card>
         <Card>
           <CardTitle>Content completeness</CardTitle>
-          <div className="mt-4 grid grid-cols-2 gap-3 text-sm"><Health label="Thiếu ảnh" value={data.missingImage} warning /><Health label="Thiếu video" value={data.missingVideo} warning /><Health label="Bản nháp" value={data.draftContent} /></div>
+          <div className="mt-4 grid grid-cols-2 gap-3 text-sm"><Health label="Thiếu ảnh" value={data.missingImage} warning hint={imageBreakdownLabel(data.imageBreakdown)} /><Health label="Thiếu video" value={data.missingVideo} warning /><Health label="Bản nháp" value={data.draftContent} /></div>
         </Card>
       </div>
     </AdminShell>
   );
 }
 
-function Health({ label, value, warning = false }: { label: string; value: number; warning?: boolean }) {
-  return <div className={`rounded-xl border p-4 ${warning && value > 0 ? 'border-flag/20 bg-flag/5' : 'border-[var(--border)] bg-white/55'}`}><p className="text-xs font-black uppercase text-stone-500">{label}</p><p className={`mt-2 text-2xl font-black ${warning && value > 0 ? 'text-flag' : 'text-charcoal'}`}>{value}</p></div>;
+function imageBreakdownLabel(value: Record<string, number> | undefined) {
+  const labels: Record<string, string> = { stages: 'giai đoạn', events: 'sự kiện', personEvents: 'sự kiện nhân vật', periods: 'thời kỳ', personGroups: 'nhóm nhân vật', persons: 'nhân vật' };
+  const parts = Object.entries(value ?? {}).filter(([, count]) => Number(count) > 0).map(([key, count]) => `${labels[key] ?? key} ${count}`);
+  return parts.length ? parts.join(' · ') : undefined;
+}
+
+function Health({ label, value, warning = false, hint }: { label: string; value: number; warning?: boolean; hint?: string }) {
+  return <div className={`rounded-xl border p-4 ${warning && value > 0 ? 'border-flag/20 bg-flag/5' : 'border-[var(--border)] bg-white/55'}`}><p className="text-xs font-black uppercase text-stone-500">{label}</p><p className={`mt-2 text-2xl font-black ${warning && value > 0 ? 'text-flag' : 'text-charcoal'}`}>{value}</p>{hint ? <p className="mt-1 text-xs leading-5 text-stone-500">{hint}</p> : null}</div>;
 }

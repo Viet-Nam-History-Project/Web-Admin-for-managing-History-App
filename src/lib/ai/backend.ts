@@ -3,6 +3,8 @@ export interface AiBackendHealth {
   neo4j: string;
   model: string;
   rag_revision?: string;
+  source_rag_revision?: string;
+  restart_required?: boolean;
   active_chat_requests?: number;
   active_index_jobs?: number;
   indexed_sources: number;
@@ -81,10 +83,6 @@ export function getAiBackendUrl() {
   return (process.env.AI_BACKEND_URL ?? 'http://127.0.0.1:8000').replace(/\/$/, '');
 }
 
-export function getRequiredRagRevision() {
-  return process.env.AI_REQUIRED_RAG_REVISION ?? 'recoverable-boundary-evolution-planning-f9-v28';
-}
-
 export function getMaxPdfSizeMb() {
   const configuredValue = Number(process.env.AI_MAX_PDF_SIZE_MB ?? '200');
   return Number.isFinite(configuredValue) && configuredValue > 0
@@ -124,8 +122,25 @@ export async function fetchAiAdmin<T>(path: string, init?: RequestInit): Promise
   } catch (error) {
     throw new Error(describeConnectionError(error), { cause: error });
   }
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(data.detail ?? data.error ?? 'AI backend không thể xử lý yêu cầu.');
+  const responseText = await response.text();
+  let data: Record<string, unknown> = {};
+  if (responseText) {
+    try {
+      data = JSON.parse(responseText) as Record<string, unknown>;
+    } catch {
+      data = {};
+    }
+  }
+  if (!response.ok) {
+    const detail = typeof data.detail === 'string'
+      ? data.detail
+      : typeof data.error === 'string'
+        ? data.error
+        : '';
+    throw new Error(
+      detail || `AI backend không thể xử lý yêu cầu (HTTP ${response.status}).`,
+    );
+  }
   return data as T;
 }
 
